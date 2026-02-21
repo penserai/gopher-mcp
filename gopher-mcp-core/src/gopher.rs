@@ -119,7 +119,7 @@ impl GopherClient {
         Ok(String::from_utf8_lossy(&buffer).into_owned())
     }
 
-    fn parse_menu_lines(content: &str) -> Vec<MenuItem> {
+    pub fn parse_menu_lines(content: &str) -> Vec<MenuItem> {
         let mut items = Vec::new();
 
         for line in content.lines() {

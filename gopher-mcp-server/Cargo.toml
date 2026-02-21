@@ -3,6 +3,13 @@ name = "gopher-mcp-server"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = ["adapter-all"]
+adapter-rss = ["gopher-mcp-core/adapter-rss"]
+adapter-fs = ["gopher-mcp-core/adapter-fs"]
+adapter-rdf = ["gopher-mcp-core/adapter-rdf"]
+adapter-all = ["adapter-rss", "adapter-fs", "adapter-rdf"]
+
 [dependencies]
 gopher-mcp-core = { path = "../gopher-mcp-core" }
 tokio = { version = "1.36", features = ["full"] }
@@ -17,3 +24,4 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 anyhow = "1.0"
 clap = { version = "4.5", features = ["derive"] }
+toml = "0.8"

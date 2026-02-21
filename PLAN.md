@@ -290,25 +290,32 @@ gopher-mcp/
 ├── Cargo.toml                     # Workspace root
 ├── README.md
 ├── PLAN.md
+├── examples/
+│   └── gopher-mcp.toml           # Sample adapter configuration
 ├── scripts/
 │   ├── gen-certs.sh               # Generate dev CA, server, and client certs
 │   ├── test-mcp.py                # mTLS integration tests
 │   ├── test-no-tls.py             # Plain HTTP integration tests
-│   └── test-proxy.py              # Live Gopher proxy tests
+│   ├── test-proxy.py              # Live Gopher proxy tests
+│   └── test-adapters.py           # Source adapter integration tests
 ├── gopher-mcp-core/               # Library crate
 │   ├── Cargo.toml
 │   └── src/
-│       ├── lib.rs                 # Public re-exports
+│       ├── lib.rs                 # Public re-exports (+ conditional adapter types)
 │       ├── gopher.rs              # Item types, menu parser, TCP client
 │       ├── store.rs               # Local content store (namespaces, menus, docs)
-│       ├── router.rs              # Path parsing, local vs remote routing
+│       ├── router.rs              # Path parsing, local vs remote routing, adapter search
 │       ├── mcp.rs                 # MCP JSON-RPC handler, tool definitions
 │       └── adapters/
-│           └── mod.rs             # SourceAdapter trait definition
+│           ├── mod.rs             # SourceAdapter trait definition
+│           ├── fs.rs              # File system adapter (feature: adapter-fs)
+│           ├── rss.rs             # RSS/Atom feed adapter (feature: adapter-rss)
+│           └── rdf.rs             # RDF/SPARQL adapter (feature: adapter-rdf)
 └── gopher-mcp-server/             # Binary crate
     ├── Cargo.toml
     └── src/
-        ├── main.rs                # Entry point, CLI args, axum wiring
+        ├── main.rs                # Entry point, CLI args, adapter wiring
+        ├── config.rs              # TOML config parsing, adapter factory
         └── tls.rs                 # mTLS configuration with rustls
 ```
 
@@ -396,10 +403,10 @@ Options:
 ### Future Work
 
 - ~~**Cargo workspace extraction** — split into `gopher-mcp-core` library and `gopher-mcp-server` binary so the core can be reused in other Rust projects~~ *(done)*
-- **Source adapters** — implement the `SourceAdapter` trait and ship RDF/SPARQL, RSS/Atom, and file system adapters as the primary v0.2 feature
-- **Adapter configuration** — TOML/YAML config file for declaring adapters, their namespaces, and sync schedules
+- ~~**Source adapters** — implement the `SourceAdapter` trait and ship RDF/SPARQL, RSS/Atom, and file system adapters as the primary v0.2 feature~~ *(done)*
+- ~~**Adapter configuration** — TOML config file for declaring adapters, their namespaces, and startup sync~~ *(done)*
+- ~~**SPARQL-backed search** — route `gopher_search` calls on RDF namespaces to native SPARQL queries instead of menu filtering~~ *(done)*
 - **Live sync** — background refresh for adapters with configurable TTL (e.g., poll an RSS feed every 15 minutes)
-- **SPARQL-backed search** — route `gopher_search` calls on RDF namespaces to native SPARQL queries instead of menu filtering
 - **Agent access control** — enforce per-agent namespace permissions based on client cert CN
 - **Content management tools** — MCP tools for agents to publish content to local namespaces
 - **Binary content** — support fetching and serving binary files (images, archives)

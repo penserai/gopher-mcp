@@ -9,3 +9,10 @@ pub use store::{LocalStore, ContentNode};
 pub use router::{Router, RouterError};
 pub use mcp::{McpHandler, McpRequest, McpResponse, McpError};
 pub use adapters::{SourceAdapter, AdapterError};
+
+#[cfg(feature = "adapter-fs")]
+pub use adapters::fs::FsAdapter;
+#[cfg(feature = "adapter-rss")]
+pub use adapters::rss::RssAdapter;
+#[cfg(feature = "adapter-rdf")]
+pub use adapters::rdf::RdfAdapter;

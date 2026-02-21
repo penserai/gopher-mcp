@@ -3,16 +3,25 @@ use crate::store::LocalStore;
 use crate::gopher::MenuItem;
 use thiserror::Error;
 
-#[allow(dead_code)]
+#[cfg(feature = "adapter-fs")]
+pub mod fs;
+#[cfg(feature = "adapter-rss")]
+pub mod rss;
+#[cfg(feature = "adapter-rdf")]
+pub mod rdf;
+
 #[derive(Error, Debug)]
 pub enum AdapterError {
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
     #[error("Network error: {0}")]
     Network(String),
+    #[error("Parse error: {0}")]
+    Parse(String),
+    #[error("Config error: {0}")]
+    Config(String),
 }
 
-#[allow(dead_code)]
 #[async_trait]
 pub trait SourceAdapter: Send + Sync {
     /// Unique namespace this adapter registers (e.g., "rdf.mydata", "feed.hackernews")

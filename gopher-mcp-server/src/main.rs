@@ -5,9 +5,10 @@ use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::{routing::post, Router as AxumRouter, Json, extract::State};
 use clap::Parser;
-use tracing::{info, Level};
+use tracing::{info, warn, Level};
 use tracing_subscriber::FmtSubscriber;
 
+mod config;
 mod tls;
 
 use gopher_mcp_core::{McpHandler, McpRequest, LocalStore, Router};
@@ -32,6 +33,10 @@ struct Args {
 
     #[arg(long, default_value_t = false)]
     no_seed: bool,
+
+    /// Path to adapter configuration file (TOML)
+    #[arg(long)]
+    config: Option<PathBuf>,
 }
 
 #[tokio::main]
@@ -49,7 +54,30 @@ async fn main() -> anyhow::Result<()> {
         info!("Seeded example content into 'local' namespace");
     }
 
-    let router = Arc::new(Router::new(local_store));
+    let mut router = Router::new(local_store);
+
+    // Load adapter config and sync adapters
+    if let Some(config_path) = &args.config {
+        info!(path = %config_path.display(), "Loading adapter config");
+        let cfg = config::load_config(config_path)?;
+        let adapters = config::create_adapters(&cfg)?;
+
+        for adapter in adapters {
+            info!(namespace = %adapter.namespace(), "Syncing adapter");
+            if let Err(e) = adapter.sync(&router.local_store).await {
+                warn!(
+                    namespace = %adapter.namespace(),
+                    error = %e,
+                    "Failed to sync adapter, skipping"
+                );
+                continue;
+            }
+            info!(namespace = %adapter.namespace(), "Adapter synced successfully");
+            router.register_adapter(adapter);
+        }
+    }
+
+    let router = Arc::new(router);
     let mcp_handler = Arc::new(McpHandler::new(router));
 
     let app = AxumRouter::new()

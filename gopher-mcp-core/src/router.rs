@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+use std::sync::Arc;
 use crate::gopher::{MenuItem, GopherClient};
 use crate::store::{LocalStore, ContentNode};
+use crate::adapters::SourceAdapter;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -12,11 +15,20 @@ pub enum RouterError {
 
 pub struct Router {
     pub local_store: LocalStore,
+    adapters: HashMap<String, Arc<dyn SourceAdapter>>,
 }
 
 impl Router {
     pub fn new(local_store: LocalStore) -> Self {
-        Router { local_store }
+        Router {
+            local_store,
+            adapters: HashMap::new(),
+        }
+    }
+
+    pub fn register_adapter(&mut self, adapter: Arc<dyn SourceAdapter>) {
+        let namespace = adapter.namespace().to_string();
+        self.adapters.insert(namespace, adapter);
     }
 
     pub async fn browse(&self, path: &str) -> Result<Vec<MenuItem>, RouterError> {
@@ -51,7 +63,14 @@ impl Router {
         let (host, selector) = self.parse_path(path);
 
         if self.is_local(host) {
-            // Local search is just filtering the menu items for now
+            // Try adapter-native search first
+            if let Some(adapter) = self.adapters.get(host) {
+                if let Some(results) = adapter.search(selector, query).await {
+                    return Ok(results);
+                }
+            }
+
+            // Fall back to filtering menu items
             match self.local_store.get_content(host, selector) {
                 Some(ContentNode::Menu(items)) => {
                     let filtered = items.into_iter()
