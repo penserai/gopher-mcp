@@ -1,0 +1,13 @@
+# File system adapter — serve a directory tree as Gopher content.
+#
+# Directories become menus, text files become documents.
+# If a .gophermap file exists in a directory, it overrides the auto-generated menu.
+# The extensions filter is optional — omit it to serve all files.
+#
+# Usage: cargo run -p gopher-mcp-server -- --no-tls --config examples/fs-demo.toml
+
+[[adapter]]
+type = "fs"
+namespace = "docs"
+root = "/tmp/wiki"             # change this to any directory on your system
+extensions = [".md", ".txt"]

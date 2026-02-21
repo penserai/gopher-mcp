@@ -1,0 +1,5 @@
+[[adapter]]
+type = "rdf"
+namespace = "rdf.demo"
+source = "examples/sample.ttl"
+format = "turtle"

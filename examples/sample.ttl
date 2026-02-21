@@ -1,0 +1,47 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex: <http://example.org/> .
+
+ex:Person rdfs:label "Person" .
+ex:Project rdfs:label "Project" .
+ex:Language rdfs:label "Programming Language" .
+
+ex:alice rdf:type ex:Person ;
+    rdfs:label "Alice" ;
+    ex:name "Alice Wonderland" ;
+    ex:email "alice@example.org" ;
+    ex:worksOn ex:gopher-mcp .
+
+ex:bob rdf:type ex:Person ;
+    rdfs:label "Bob" ;
+    ex:name "Bob Builder" ;
+    ex:email "bob@example.org" ;
+    ex:worksOn ex:iron-wolf .
+
+ex:carol rdf:type ex:Person ;
+    rdfs:label "Carol" ;
+    ex:name "Carol Danvers" ;
+    ex:knows ex:alice ;
+    ex:worksOn ex:gopher-mcp .
+
+ex:gopher-mcp rdf:type ex:Project ;
+    rdfs:label "gopher-mcp" ;
+    ex:description "MCP server bridging AI agents to Gopher content" ;
+    ex:language ex:rust ;
+    ex:license "Apache-2.0" .
+
+ex:iron-wolf rdf:type ex:Project ;
+    rdfs:label "Iron Wolf" ;
+    ex:description "Wolfenstein 3D source port in Rust" ;
+    ex:language ex:rust ;
+    ex:license "MIT" .
+
+ex:rust rdf:type ex:Language ;
+    rdfs:label "Rust" ;
+    ex:creator "Graydon Hoare" ;
+    ex:year "2010" .
+
+ex:haskell rdf:type ex:Language ;
+    rdfs:label "Haskell" ;
+    ex:creator "Committee" ;
+    ex:year "1990" .

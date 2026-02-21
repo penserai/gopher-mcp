@@ -1,0 +1,24 @@
+# Multiple adapters in one config — all sync at startup and coexist
+# under separate namespaces.
+#
+# Usage: cargo run -p gopher-mcp-server -- --no-tls --config examples/multi-adapter-demo.toml
+
+# Live RSS feed
+[[adapter]]
+type = "rss"
+namespace = "feed.hackernews"
+url = "https://hnrss.org/frontpage"
+
+# Remote RDF from DBpedia
+[[adapter]]
+type = "rdf"
+namespace = "rdf.rust"
+source = "https://dbpedia.org/data/Rust_(programming_language).ttl"
+format = "turtle"
+
+# Local RDF graph
+[[adapter]]
+type = "rdf"
+namespace = "rdf.demo"
+source = "examples/sample.ttl"
+format = "turtle"

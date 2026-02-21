@@ -1,0 +1,4 @@
+[[adapter]]
+type = "rss"
+namespace = "feed.hackernews"
+url = "https://hnrss.org/frontpage"

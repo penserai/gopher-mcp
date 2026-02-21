@@ -1,0 +1,12 @@
+# Remote RDF adapter — fetch a Turtle file over HTTP and navigate it.
+#
+# This example loads DBpedia's Rust resource (hundreds of triples) and
+# builds a class/resource hierarchy from the remote data.
+#
+# Usage: cargo run -p gopher-mcp-server -- --no-tls --config examples/remote-rdf-demo.toml
+
+[[adapter]]
+type = "rdf"
+namespace = "rdf.rust"
+source = "https://dbpedia.org/data/Rust_(programming_language).ttl"
+format = "turtle"
