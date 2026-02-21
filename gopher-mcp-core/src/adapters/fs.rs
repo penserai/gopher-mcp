@@ -76,7 +76,10 @@ impl FsAdapter {
             None => true,
             Some(exts) => {
                 if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-                    exts.iter().any(|e| e.eq_ignore_ascii_case(ext))
+                    exts.iter().any(|e| {
+                        let e = e.strip_prefix('.').unwrap_or(e);
+                        e.eq_ignore_ascii_case(ext)
+                    })
                 } else {
                     // Files without an extension are excluded when a filter is set
                     false
