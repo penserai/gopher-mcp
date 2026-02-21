@@ -301,20 +301,23 @@ impl SourceAdapter for RdfAdapter {
     async fn search(&self, _selector: &str, query: &str) -> Option<Vec<MenuItem>> {
         let endpoint = self.sparql_endpoint.as_ref()?;
 
+        // Sanitize query for SPARQL injection (escape quotes)
+        let safe_query = query.replace('"', r#"\""#).replace('\'', r#"\'"#);
+
         let sparql_query = format!(
-            r#"SELECT ?s ?label WHERE {{
-  ?s ?p ?o .
-  FILTER(CONTAINS(LCASE(STR(?o)), LCASE("{query}")))
-  OPTIONAL {{ ?s <{RDFS_LABEL}> ?label }}
+            r#"SELECT DISTINCT ?s ?label WHERE {{
+  ?s <{RDFS_LABEL}> ?label .
+  FILTER(LANG(?label) = "en")
+  FILTER(CONTAINS(LCASE(STR(?label)), LCASE("{safe_query}")))
 }} LIMIT 20"#,
         );
 
         let client = reqwest::Client::new();
         let response = client
             .post(endpoint)
-            .header("Content-Type", "application/sparql-query")
             .header("Accept", "application/sparql-results+json")
-            .body(sparql_query)
+            .form(&[("query", &sparql_query)])
+            .timeout(std::time::Duration::from_secs(15))
             .send()
             .await
             .ok()?;
