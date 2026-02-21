@@ -1,0 +1,20 @@
+# Obsidian vault adapter — give an AI agent access to your notes.
+#
+# Markdown files become fetchable documents. Folders become browsable menus.
+# The .md extension filter keeps binary attachments (images, PDFs) out of
+# results, so agents only see text — saving tokens and avoiding noise.
+#
+# Usage:
+#   cargo run -p gopher-mcp-server -- --no-tls --config examples/obsidian-vault.toml
+#
+# Then ask your agent to:
+#   gopher_browse("vault/")              — list top-level folders and notes
+#   gopher_browse("vault/Projects")      — list notes in Projects/
+#   gopher_fetch("vault/Projects/idea")  — read a specific note
+#   gopher_search("vault/", "rust")      — find notes matching "rust"
+
+[[adapter]]
+type = "fs"
+namespace = "vault"
+root = "~/Documents/Obsidian/MyVault"   # change this to your vault path
+extensions = [".md"]

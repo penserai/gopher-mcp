@@ -46,12 +46,29 @@ rdf.demo/resource/http_example.org_alice     → Alice's triples as a document
 rdf.demo/resource/http_example.org_gopher-mcp → project properties
 ```
 
+### `obsidian-vault.toml` — Obsidian Vault
+
+Gives an AI agent browsable, searchable access to an Obsidian vault. Only `.md` files are served, so binary attachments (images, PDFs) stay out of results — agents see pure text, saving tokens.
+
+```bash
+# Edit the root path in the config first, then:
+cargo run -p gopher-mcp-server -- --no-tls --config examples/obsidian-vault.toml
+```
+
+Navigation:
+```
+vault/                     → top-level folders and notes
+vault/Projects             → notes in Projects/
+vault/Projects/idea        → read a specific note
+vault/ + search "rust"     → find notes matching "rust"
+```
+
 ### `fs-demo.toml` — File System / Wiki
 
 Serves a local directory tree as navigable content. Directories become menus, text files become documents. Supports `.gophermap` files for curated landing pages.
 
 ```bash
-# Point it at any directory — an Obsidian vault, Jekyll _posts/, a wiki clone, etc.
+# Point it at any directory — Jekyll _posts/, a wiki clone, etc.
 cargo run -p gopher-mcp-server -- --no-tls --config examples/fs-demo.toml
 ```
 
