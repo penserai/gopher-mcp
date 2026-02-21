@@ -2,6 +2,9 @@
 name = "gopher-mcp-core"
 version = "0.1.0"
 edition = "2021"
+description = "Framework-agnostic MCP server core for the Gopher protocol"
+license = "Apache-2.0"
+repository = "https://github.com/penserai/gopher-mcp"
 
 [dependencies]
 tokio = { version = "1.36", features = ["io-util", "net", "time"] }
