@@ -280,42 +280,64 @@ An agent browsing `rdf.mydata/class/Person` sees a menu of all `?s rdf:type :Per
 
 ### Project Structure
 
+The project is a Cargo workspace with two crates:
+
+- **`gopher-mcp-core`** — Framework-agnostic library (publishable to crates.io). Contains the MCP handler, Gopher client, router, local store, and adapter trait. No web-framework dependencies.
+- **`gopher-mcp-server`** — Binary crate that wires the core library into an axum HTTP server with mTLS and CLI args.
+
 ```
 gopher-mcp/
-├── Cargo.toml
+├── Cargo.toml                     # Workspace root
 ├── README.md
 ├── PLAN.md
 ├── scripts/
-│   └── gen-certs.sh           # Generate dev CA, server, and client certs
-└── src/
-    ├── main.rs                # Entry point, CLI args, server bootstrap
-    ├── gopher.rs              # Item types, menu parser, TCP client
-    ├── store.rs               # Local content store (namespaces, menus, docs)
-    ├── router.rs              # Path parsing, local vs remote routing
-    ├── mcp.rs                 # MCP JSON-RPC handler, tool definitions
-    ├── tls.rs                 # mTLS configuration with rustls
-    └── adapters/              # Source adapters (future)
-        ├── mod.rs             # SourceAdapter trait definition
-        ├── rdf.rs             # RDF / SPARQL adapter
-        ├── feed.rs            # RSS / Atom adapter
-        └── fs.rs              # File system adapter
+│   ├── gen-certs.sh               # Generate dev CA, server, and client certs
+│   ├── test-mcp.py                # mTLS integration tests
+│   ├── test-no-tls.py             # Plain HTTP integration tests
+│   └── test-proxy.py              # Live Gopher proxy tests
+├── gopher-mcp-core/               # Library crate
+│   ├── Cargo.toml
+│   └── src/
+│       ├── lib.rs                 # Public re-exports
+│       ├── gopher.rs              # Item types, menu parser, TCP client
+│       ├── store.rs               # Local content store (namespaces, menus, docs)
+│       ├── router.rs              # Path parsing, local vs remote routing
+│       ├── mcp.rs                 # MCP JSON-RPC handler, tool definitions
+│       └── adapters/
+│           └── mod.rs             # SourceAdapter trait definition
+└── gopher-mcp-server/             # Binary crate
+    ├── Cargo.toml
+    └── src/
+        ├── main.rs                # Entry point, CLI args, axum wiring
+        └── tls.rs                 # mTLS configuration with rustls
 ```
 
 ### Dependencies
 
+#### gopher-mcp-core (library)
+
 | Crate | Purpose |
 |---|---|
-| `tokio` | Async runtime, TCP streams |
+| `tokio` (io-util, net, time) | Async TCP streams and timeouts |
+| `serde` / `serde_json` | JSON serialization for MCP protocol |
+| `thiserror` | Error type derivation |
+| `async-trait` | Async trait support for SourceAdapter |
+| `tracing` | Structured logging |
+
+#### gopher-mcp-server (binary)
+
+| Crate | Purpose |
+|---|---|
+| `gopher-mcp-core` | Core library (path dependency) |
+| `tokio` (full) | Async runtime |
 | `axum` | HTTP framework for MCP endpoint |
 | `axum-server` | TLS-enabled server (rustls backend) |
 | `rustls` | TLS implementation |
 | `rustls-pemfile` | PEM file parsing |
 | `tokio-rustls` | Async TLS streams |
-| `serde` / `serde_json` | JSON serialization for MCP protocol |
-| `tracing` | Structured logging |
-| `thiserror` | Error type derivation |
+| `tracing-subscriber` | Log output formatting |
 | `anyhow` | Top-level error handling |
-| `uuid` | Request ID generation |
+| `clap` | CLI argument parsing |
 
 ### Gopher Client Implementation
 
@@ -363,7 +385,7 @@ The `--seed` flag (default: on) populates a `local` namespace with example conte
 ### CLI Interface
 
 ```
-gopher-mcp [OPTIONS]
+cargo run -p gopher-mcp-server -- [OPTIONS]
 
 Options:
   --bind, -b <ADDR>    Bind address (default: 127.0.0.1:8443)
@@ -373,6 +395,7 @@ Options:
 
 ### Future Work
 
+- ~~**Cargo workspace extraction** — split into `gopher-mcp-core` library and `gopher-mcp-server` binary so the core can be reused in other Rust projects~~ *(done)*
 - **Source adapters** — implement the `SourceAdapter` trait and ship RDF/SPARQL, RSS/Atom, and file system adapters as the primary v0.2 feature
 - **Adapter configuration** — TOML/YAML config file for declaring adapters, their namespaces, and sync schedules
 - **Live sync** — background refresh for adapters with configurable TTL (e.g., poll an RSS feed every 15 minutes)
