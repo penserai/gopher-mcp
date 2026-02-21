@@ -8,16 +8,9 @@ use clap::Parser;
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
-mod gopher;
-mod store;
-mod router;
-mod mcp;
 mod tls;
-mod adapters;
 
-use store::LocalStore;
-use router::Router;
-use mcp::{McpHandler, McpRequest};
+use gopher_mcp_core::{McpHandler, McpRequest, LocalStore, Router};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
