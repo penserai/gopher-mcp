@@ -11,18 +11,18 @@ MCP server that bridges AI agents to Gopher-style content discovery with mTLS, s
 
 ### 2. Build and Run the Server
 ```bash
-cargo run -- --seed
+cargo run
 ```
 
-### 3. Test with Curl (mTLS)
+### 3. Test with mTLS
 ```bash
-./scripts/test-mcp.sh
+./scripts/test-mcp.py
 ```
 
 ### 4. Run without TLS (Development)
 ```bash
-cargo run -- --no-tls --seed
-./scripts/test-no-tls.sh
+cargo run -- --no-tls
+./scripts/test-no-tls.py
 ```
 
 ## Tools
