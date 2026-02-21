@@ -80,33 +80,33 @@ impl McpHandler {
         let tools = serde_json::json!([
             {
                 "name": "gopher_browse",
-                "description": "Navigate a Gopher menu. Returns structured items with type, display text, and navigable path.",
+                "description": "Navigate a content hierarchy. Returns structured items with type, display text, and navigable path.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "path": { "type": "string", "description": "host/selector" }
+                        "path": { "type": "string", "description": "host/selector (e.g., docs/readme.md, feed.hn/entry/0)" }
                     },
                     "required": ["path"]
                 }
             },
             {
                 "name": "gopher_fetch",
-                "description": "Retrieve a Gopher document's text content.",
+                "description": "Retrieve a document's text content.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "path": { "type": "string", "description": "host/selector" }
+                        "path": { "type": "string", "description": "host/selector (e.g., docs/readme.md, feed.hn/entry/0)" }
                     },
                     "required": ["path"]
                 }
             },
             {
                 "name": "gopher_search",
-                "description": "Execute a search query against a Gopher search endpoint (type 7) or filter local menu entries.",
+                "description": "Execute a search query against a search endpoint or filter local menu entries.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "path": { "type": "string", "description": "host/selector for search endpoint" },
+                        "path": { "type": "string", "description": "host/selector for search endpoint (e.g., docs/readme.md, feed.hn/entry/0)" },
                         "query": { "type": "string" }
                     },
                     "required": ["path", "query"]

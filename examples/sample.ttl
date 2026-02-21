@@ -26,7 +26,7 @@ ex:carol rdf:type ex:Person ;
 
 ex:gopher-mcp rdf:type ex:Project ;
     rdfs:label "gopher-mcp" ;
-    ex:description "MCP server bridging AI agents to Gopher content" ;
+    ex:description "MCP server for structured content discovery" ;
     ex:language ex:rust ;
     ex:license "Apache-2.0" .
 

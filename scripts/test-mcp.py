@@ -93,7 +93,7 @@ r = post_json({
     "params": {"name": "gopher_browse", "arguments": {"path": "local/"}}
 })
 items = json.loads(r["result"]["content"][0]["text"])
-check("returns Welcome item", lambda _: any(i["display"] == "Welcome to Local Gopher" for i in items), None)
+check("returns Welcome item", lambda _: any(i["display"] == "Welcome to gopher-mcp" for i in items), None)
 check("returns Submenu item", lambda _: any(i["display"] == "Submenu Example" for i in items), None)
 info_items = [i for i in items if i["type"] == "i"]
 check("info items have empty path", lambda _: all(i["path"] == "" for i in info_items), None)
@@ -103,7 +103,7 @@ r = post_json({
     "jsonrpc": "2.0", "id": 5, "method": "tools/call",
     "params": {"name": "gopher_fetch", "arguments": {"path": "local/welcome"}}
 })
-check("returns document content", "never touched a real Gopher wire", r["result"]["content"][0]["text"])
+check("returns document content", "served directly from the local store", r["result"]["content"][0]["text"])
 
 print("\n--- gopher_search local/ query=sub ---")
 r = post_json({

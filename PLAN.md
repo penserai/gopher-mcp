@@ -1,33 +1,33 @@
 # gopher-mcp
 
-MCP server that bridges AI agents to Gopher-style content discovery with mTLS, serving local content and proxying live Gopherspace.
+MCP server for structured content discovery. Connects AI agents to local files,
+RSS/Atom feeds, RDF knowledge graphs, and Gopher servers through three uniform
+tools: browse, fetch, and search.
 
 ## Motivation
 
-The Gopher protocol's menu-driven, hierarchical content model is a natural fit for agentic content discovery. Unlike the web, where agents must parse arbitrary HTML and guess at navigation structure, Gopher's typed menus provide explicit, machine-readable navigation with clear semantics — every item declares what it is and where it leads.
+AI agents need structured ways to discover and navigate content. Unlike the web, where agents must parse arbitrary HTML and guess at navigation structure, a typed menu hierarchy provides explicit, machine-readable navigation with clear semantics — every item declares what it is and where it leads.
 
-gopher-mcp wraps this content model into MCP, giving agents structured tools for browsing, fetching, and searching content. It operates in hybrid mode: content may originate locally (never touching a real Gopher server), be ingested from other data formats and protocols (RDF, SPARQL endpoints, Atom/RSS feeds, file systems), or be transparently proxied from live Gopherspace over TCP.
-
-The Gopher content model acts as a universal presentation layer — a simple, navigable hierarchy that agents can traverse regardless of where the underlying data lives. This makes gopher-mcp a bridge not just to Gopherspace, but to any structured data source that can be projected into menus and documents.
+gopher-mcp projects heterogeneous data sources — local files, RSS/Atom feeds, RDF knowledge graphs, and live Gopher servers — into a uniform menu/document model inspired by the Gopher protocol. Complex formats are reduced to navigable text, saving agents tokens and eliminating parsing ambiguity. All content is accessed through three MCP tools: browse, fetch, and search.
 
 mTLS provides mutual authentication so the server knows which agent is connecting and agents can verify the server's identity.
 
 ## Goals
 
-- Expose Gopher's hierarchical content model to MCP-connected agents
+- Give MCP-connected agents a uniform interface to browse, fetch, and search structured content from heterogeneous sources
 - Support hybrid content: local-native, ingested from external data sources, and proxied from real Gopher servers
-- Enable pluggable data sources — project RDF graphs, SPARQL endpoints, RSS/Atom feeds, file systems, and other structured data into navigable Gopher menus
+- Enable pluggable data sources — project RDF graphs, SPARQL endpoints, RSS/Atom feeds, file systems, and other structured data into navigable menus
+- Reduce complex formats to navigable text, saving agents tokens and eliminating parsing ambiguity
 - Secure all agent communication with mutual TLS
 - Keep the `host/selector` path format as the single, clean addressing scheme
-- Maintain Gopher's stateless simplicity — each tool call is independent
+- Maintain stateless simplicity — each tool call is independent
 
 ## Non-Goals
 
 - Implementing a standalone Gopher server (no TCP port 70 listener)
-- Replacing or competing with Gemini
-- Full-text indexing or crawling of Gopherspace
+- Full-text indexing or crawling
 - Binary file serving through MCP (text content only in v0.1)
-- Being a general-purpose data transformation pipeline — sources are projected into Gopher's menu/document model, not arbitrary query interfaces
+- Being a general-purpose data transformation pipeline — sources are projected into the menu/document model, not arbitrary query interfaces
 
 ## Architecture
 
@@ -55,11 +55,11 @@ Agent ──mTLS──▶    │  MCP Handler ──▶ Router ──▶ Local S
 
 **Router** — Parses `host/selector` paths, checks whether the host is a registered local namespace, and routes accordingly. The routing decision is transparent to the agent.
 
-**Local Store** — In-memory content store organized as namespaces containing menus and documents. Content follows Gopher's model (typed items in hierarchical menus) but is served purely through MCP. Namespaces are registered at startup or dynamically via source adapters.
+**Local Store** — In-memory content store organized as namespaces containing menus and documents. Namespaces are registered at startup or dynamically via source adapters.
 
-**Source Adapters** — Pluggable modules that ingest external data and project it into the local store as Gopher menus and documents. Each adapter maps a foreign data model onto the menu/document hierarchy:
+**Source Adapters** — Pluggable modules that ingest external data and project it into the local store as menus and documents. Each adapter maps a foreign data model onto the menu/document hierarchy:
 
-- **RDF / SPARQL** — Navigate an RDF graph as menus. Classes and predicates become menu items, triples become documents. SPARQL endpoints can back search queries (type 7).
+- **RDF / SPARQL** — Navigate an RDF graph as menus. Classes and predicates become menu items, triples become documents. SPARQL endpoints can back search queries.
 - **RSS / Atom** — Feed entries become text documents under a channel menu. Categories map to submenus.
 - **File System** — Directories become menus, files become documents. Respects `.gophermap` if present.
 - **Custom** — Trait-based interface for implementing new adapters.
@@ -89,14 +89,14 @@ Given a path like `local/docs/rfc1436`:
 
 ### gopher_browse
 
-Navigate a menu. Returns structured items with type, display text, navigable path, and MIME hint.
+Navigate a content hierarchy. Returns structured items with type, display text, navigable path, and MIME hint.
 
 ```json
 {
   "name": "gopher_browse",
   "inputSchema": {
     "properties": {
-      "path": { "type": "string", "description": "host/selector" }
+      "path": { "type": "string", "description": "host/selector (e.g., docs/readme.md, feed.hn/entry/0)" }
     },
     "required": ["path"]
   }
@@ -135,7 +135,7 @@ Retrieve a document's text content.
   "name": "gopher_fetch",
   "inputSchema": {
     "properties": {
-      "path": { "type": "string", "description": "host/selector" }
+      "path": { "type": "string", "description": "host/selector (e.g., docs/readme.md, feed.hn/entry/0)" }
     },
     "required": ["path"]
   }
@@ -145,20 +145,20 @@ Retrieve a document's text content.
 **Response:**
 ```json
 {
-  "content": "This is a Gopher-MCP hybrid server.\nContent here never touched a real Gopher wire.\n"
+  "content": "This is a local document served by gopher-mcp.\nContent here is served directly from the local store.\n"
 }
 ```
 
 ### gopher_search
 
-Execute a search query against a Gopher search endpoint (type 7) or filter local menu entries.
+Execute a search query against a search endpoint or filter local menu entries.
 
 ```json
 {
   "name": "gopher_search",
   "inputSchema": {
     "properties": {
-      "path": { "type": "string", "description": "host/selector for search endpoint" },
+      "path": { "type": "string", "description": "host/selector for search endpoint (e.g., docs/readme.md, feed.hn/entry/0)" },
       "query": { "type": "string" }
     },
     "required": ["path", "query"]
@@ -238,7 +238,7 @@ pub trait SourceAdapter: Send + Sync {
 
 Maps an RDF graph into navigable menus:
 
-| RDF Concept | Gopher Mapping |
+| RDF Concept | Content Model Mapping |
 |---|---|
 | Named graph / dataset | Namespace root menu |
 | `rdf:type` classes | Submenus grouping instances |
@@ -251,14 +251,14 @@ Example navigation:
 rdf.mydata/                        → root menu listing classes
 rdf.mydata/class/Person            → menu of Person instances
 rdf.mydata/resource/alice          → document showing Alice's triples
-rdf.mydata/sparql                  → search endpoint (type 7)
+rdf.mydata/sparql                  → search endpoint
 ```
 
 An agent browsing `rdf.mydata/class/Person` sees a menu of all `?s rdf:type :Person` results, each linking to a document that renders that resource's properties as readable text.
 
 #### RSS / Atom Adapter
 
-| Feed Concept | Gopher Mapping |
+| Feed Concept | Content Model Mapping |
 |---|---|
 | Feed channel | Namespace root menu |
 | Categories / tags | Submenus |
@@ -267,7 +267,7 @@ An agent browsing `rdf.mydata/class/Person` sees a menu of all `?s rdf:type :Per
 
 #### File System Adapter
 
-| FS Concept | Gopher Mapping |
+| FS Concept | Content Model Mapping |
 |---|---|
 | Directory | Menu |
 | Text file | Text document (type 0) |
@@ -282,7 +282,7 @@ An agent browsing `rdf.mydata/class/Person` sees a menu of all `?s rdf:type :Per
 
 The project is a Cargo workspace with two crates:
 
-- **`gopher-mcp-core`** — Framework-agnostic library (publishable to crates.io). Contains the MCP handler, Gopher client, router, local store, and adapter trait. No web-framework dependencies.
+- **`gopher-mcp-core`** — Framework-agnostic library (publishable to crates.io). Contains the MCP handler, content router, local store, and adapter trait. No web-framework dependencies.
 - **`gopher-mcp-server`** — Binary crate that wires the core library into an axum HTTP server with mTLS and CLI args.
 
 ```

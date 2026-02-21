@@ -1,6 +1,6 @@
 # Examples
 
-Ready-to-run adapter configurations for gopher-mcp. Each example demonstrates a different source adapter projecting external data into Gopher's menu/document model.
+Ready-to-run adapter configurations for gopher-mcp. Each example demonstrates a different source adapter projecting external data into navigable menus and documents for AI agents.
 
 ## Quick Start
 
@@ -15,7 +15,7 @@ Then browse the content via MCP tools (`gopher_browse`, `gopher_fetch`, `gopher_
 
 ### `rss-demo.toml` — RSS/Atom Feed
 
-Fetches the Hacker News front page feed and serves it as a Gopher menu. Each entry becomes a fetchable document with title, date, summary, and links.
+Fetches the Hacker News front page feed and serves it as a navigable menu. Each entry becomes a fetchable document with title, date, summary, and links.
 
 ```bash
 cargo run -p gopher-mcp-server -- --no-tls --config examples/rss-demo.toml
@@ -48,7 +48,7 @@ rdf.demo/resource/http_example.org_gopher-mcp → project properties
 
 ### `fs-demo.toml` — File System / Wiki
 
-Serves a local directory tree as Gopher content. Directories become menus, text files become documents. Supports `.gophermap` files for curated landing pages.
+Serves a local directory tree as navigable content. Directories become menus, text files become documents. Supports `.gophermap` files for curated landing pages.
 
 ```bash
 # Point it at any directory — an Obsidian vault, Jekyll _posts/, a wiki clone, etc.

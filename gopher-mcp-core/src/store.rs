@@ -48,7 +48,7 @@ impl LocalStore {
         let root_menu = vec![
             MenuItem {
                 itype: ItemType::TextFile,
-                display: "Welcome to Local Gopher".to_string(),
+                display: "Welcome to gopher-mcp".to_string(),
                 selector: "/welcome".to_string(),
                 host: "local".to_string(),
                 port: 0,
@@ -70,7 +70,7 @@ impl LocalStore {
         ];
 
         self.add_content("local", "", ContentNode::Menu(root_menu));
-        self.add_content("local", "/welcome", ContentNode::Document("This is a local document served by gopher-mcp.\nIt never touched a real Gopher wire.".to_string()));
+        self.add_content("local", "/welcome", ContentNode::Document("This is a local document served by gopher-mcp.\nContent here is served directly from the local store.".to_string()));
         
         let sub_menu = vec![
             MenuItem {

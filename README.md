@@ -1,12 +1,40 @@
 # gopher-mcp
 
-MCP server that bridges AI agents to Gopher-style content discovery with mTLS, serving local content and proxying live Gopherspace.
+MCP server for structured content discovery. Connects AI agents to local files,
+RSS/Atom feeds, RDF knowledge graphs, and Gopher servers through three uniform
+tools: browse, fetch, and search.
+
+```
+       ┌───────┐     ┌───────┐     ┌────────┐     ┌───────┐
+   ^   │ files │  ^  │ feeds │  ^  │ graphs │  ^  │  :70  │   ^
+  /|\  └───┬───┘ /|\ └───┬───┘ /|\ └────┬───┘ /|\ └───┬───┘  /|\
+  ~~~~~~~~~│~~~~~~~~~~~~~│~~~~~~~~~~~~~~│~~~~~~~~~~~~~~│~~~~~~~~~
+  ░░░░░░░░░│░░░░░░░░░░░░░│░░░░░░░░░░░░░░│░░░░░░░░░░░░░░│░░░░░░░
+  ░░░░┌────┘░░░░░░░┌─────┘░░░░░░░░┌─────┘░░░░░░░░┌─────┘░░░░░░░
+  ░░░░│░░░░░░░░░░░░│░░░░░░░░░░░░░░│░░░░░░░░░░░░░░│░░░░░░░░░░░░░
+  ░░░░└─────┐░░░░░░└──────┐░░░░░░░└──────┐░░░░░░░│░░░░░░░░░░░░░
+  ░░░░░░░░░░└─────────────┴──────────────┴───────┘░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░░░░░>(•.•)>░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+```
+
+## What It Does
+
+| Source | Example | How it works |
+|--------|---------|-------------|
+| **File System** | Obsidian vault, Jekyll `_posts/`, any directory tree | Directories become menus, text files become documents |
+| **RSS / Atom** | Hacker News, blog feeds | Feed entries become documents under a channel menu |
+| **RDF / SPARQL** | Knowledge graphs, DBpedia, local Turtle files | Classes become menus, resources become documents, SPARQL backs search |
+| **Gopher servers** | `gopher.floodgap.com` | Transparent TCP proxy to live Gopherspace |
+
+All sources are projected into a uniform menu/document hierarchy and accessed through the same three MCP tools.
 
 ## Project Structure
 
 This is a Cargo workspace with two crates:
 
-- **`gopher-mcp-core`** — Framework-agnostic library: MCP handler, Gopher client, router, local store, and adapter trait. No web-framework dependencies.
+- **`gopher-mcp-core`** — Framework-agnostic library: MCP handler, content router, local store, and adapter trait. No web-framework dependencies.
 - **`gopher-mcp-server`** — Binary that wires the core library into an axum HTTP server with mTLS and CLI args.
 
 ```
@@ -70,14 +98,15 @@ match handler.handle(request).await {
 
 ## Tools
 
-- `gopher_browse(path)`: List menu items.
-- `gopher_fetch(path)`: Retrieve text content.
-- `gopher_search(path, query)`: Search/filter content.
+- `gopher_browse(path)`: Navigate a content hierarchy. Returns structured items with type, display text, and navigable path.
+- `gopher_fetch(path)`: Retrieve a document's text content.
+- `gopher_search(path, query)`: Search a search endpoint or filter local menu entries.
 
-Path format: `host/selector` (e.g., `local/welcome`, `gopher.floodgap.com/`)
+Path format: `host/selector` (e.g., `docs/readme.md`, `feed.hn/entry/0`, `gopher.floodgap.com/`)
 
 ## Architecture
 
-- **Local Store**: Serves namespaces like `local` from memory.
-- **Proxy Client**: Connects to port 70 for external hosts.
+- **Source Adapters**: Project files, feeds, and knowledge graphs into navigable menus and documents.
+- **Local Store**: Serves namespaces from memory.
+- **Gopher Proxy**: Connects to port 70 for live Gopher servers.
 - **mTLS**: Uses `rustls` to verify client and server certificates.

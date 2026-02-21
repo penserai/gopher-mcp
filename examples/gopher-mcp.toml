@@ -2,13 +2,13 @@
 #
 # Usage: cargo run -p gopher-mcp-server -- --no-tls --config examples/gopher-mcp.toml
 
-# RSS/Atom feed adapter — fetches a feed and projects it as Gopher menus/documents
+# RSS/Atom feed adapter — fetches a feed and projects it as navigable menus/documents
 # [[adapter]]
 # type = "rss"
 # namespace = "feed.hackernews"
 # url = "https://hnrss.org/frontpage"
 
-# File system adapter — serves a directory tree as Gopher content
+# File system adapter — serves a directory tree as navigable content
 # [[adapter]]
 # type = "fs"
 # namespace = "docs"

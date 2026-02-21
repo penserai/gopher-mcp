@@ -85,7 +85,7 @@ r = post_json({
     "jsonrpc": "2.0", "id": 5, "method": "tools/call",
     "params": {"name": "gopher_fetch", "arguments": {"path": "local/welcome"}}
 })
-check("returns document", "never touched a real Gopher wire", r["result"]["content"][0]["text"])
+check("returns document", "served directly from the local store", r["result"]["content"][0]["text"])
 
 print("\n--- gopher_search local/ query=Welcome ---")
 r = post_json({

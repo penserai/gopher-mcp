@@ -1,4 +1,4 @@
-# File system adapter — serve a directory tree as Gopher content.
+# File system adapter — serve a directory tree as navigable content.
 #
 # Directories become menus, text files become documents.
 # If a .gophermap file exists in a directory, it overrides the auto-generated menu.
