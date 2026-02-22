@@ -1,6 +1,6 @@
 ---
 name: mirror
-description: Mirror a gopher-mcp source namespace into the vault using gopher_dump
+description: Mirror a gopher-mcp source namespace into the vault using dump
 argument-hint: [source-namespace] [destination-path]
 ---
 
@@ -13,18 +13,33 @@ Mirror the source namespace into the vault.
 
 ### 1. Preview the source
 
-Use `gopher_browse` on the source root to show the user what's there — how many items, what types, whether there are subdirectories.
+Browse the source root to show the user what's there — how many items, what types, whether there are subdirectories:
 
-### 2. Confirm and dump
+```bash
+gopher-mcp-tui browse [source]/
+```
 
-Use `gopher_dump` with:
-- `source`: the source namespace path
-- `destination`: the provided destination or `vault/mirrors/[source-name]`
-- `max_depth`: 3 (default, unless the source looks very deep)
+### 2. Dump
+
+Use the dump command to recursively copy documents:
+
+```bash
+gopher-mcp-tui dump [source]/ vault/mirrors/[source-name]
+```
+
+Use `--max-depth` if the source looks very deep:
+
+```bash
+gopher-mcp-tui dump [source]/ vault/mirrors/[source-name] --max-depth 2
+```
 
 ### 3. Verify the mirror
 
-Use `gopher_browse` on the destination path to confirm the structure was copied correctly. Show the user what landed in the vault.
+Browse the destination to confirm the structure was copied correctly:
+
+```bash
+gopher-mcp-tui browse vault/mirrors/[source-name]/
+```
 
 ### 4. Report
 

@@ -22,3 +22,6 @@ target
 
 # Generated dev certificates (contain private keys)
 certs/
+
+# Cross-compilation output
+dist/

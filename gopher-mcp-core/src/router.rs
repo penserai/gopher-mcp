@@ -200,6 +200,25 @@ impl Router {
         Ok(())
     }
 
+    /// Return all known namespace names (from local store and registered adapters).
+    pub fn namespaces(&self) -> Vec<String> {
+        let mut ns: Vec<String> = self
+            .local_store
+            .content
+            .read()
+            .unwrap()
+            .keys()
+            .cloned()
+            .collect();
+        for key in self.adapters.keys() {
+            if !ns.contains(key) {
+                ns.push(key.clone());
+            }
+        }
+        ns.sort();
+        ns
+    }
+
     fn is_local(&self, host: &str) -> bool {
         self.local_store.has_namespace(host)
     }

@@ -6,19 +6,36 @@ argument-hint: [topic]
 
 Research the topic: **$ARGUMENTS**
 
-Follow this workflow using the gopher-mcp tools:
+Follow this workflow using the gopher-mcp CLI via Bash tool calls. Output is auto-JSON when piped.
 
 ## 1. Discover sources
 
-Use `gopher_browse` on each known namespace root to see what's available. Common namespaces include RSS feeds (`feed.*`), RDF graphs (`rdf.*`), local docs (`docs`), and the vault (`vault`). Start by browsing each to understand the landscape.
+List available namespaces and browse each root to see what's available:
+
+```bash
+gopher-mcp-tui browse
+gopher-mcp-tui browse feed.hackernews/
+gopher-mcp-tui browse vault/
+```
 
 ## 2. Search for relevant content
 
-Use `gopher_search` across every namespace with keywords from the topic. Cast a wide net — try synonyms and related terms.
+Search across every namespace with keywords from the topic. Cast a wide net — try synonyms and related terms:
+
+```bash
+gopher-mcp-tui search feed.hackernews/ "topic keywords"
+gopher-mcp-tui search vault/ "topic keywords"
+gopher-mcp-tui search docs/ "related term"
+```
 
 ## 3. Read the most relevant documents
 
-Use `gopher_fetch` to read the top results. Extract key facts, quotes, and insights. Note which source each piece came from.
+Fetch the top results. Extract key facts, quotes, and insights. Note which source each piece came from:
+
+```bash
+gopher-mcp-tui fetch feed.hackernews/entry/5
+gopher-mcp-tui fetch vault/research/related-note.md
+```
 
 ## 4. Synthesize findings
 
@@ -45,6 +62,10 @@ Date: [today]
 
 ## 5. Save to vault
 
-Use `gopher_publish` to save the note to `vault/research/[slugified-topic].md`.
+Publish the note to the vault:
+
+```bash
+gopher-mcp-tui publish vault/research/[slugified-topic].md --content "[markdown content]"
+```
 
 Confirm what you saved and where.

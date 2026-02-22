@@ -1,15 +1,35 @@
 # Examples
 
-Ready-to-run adapter configurations for gopher-mcp. Each example demonstrates a different source adapter projecting external data into navigable menus and documents for AI agents.
+Ready-to-run adapter configurations for gopher-mcp. Each example demonstrates a different source adapter projecting external data into navigable menus and documents.
 
-## Quick Start
+## Using Examples
+
+Every example works two ways — embedded via the CLI, or through the server.
+
+### CLI (embedded, no server)
+
+Copy the example config to `~/.gopher-mcp.toml` and use the CLI directly:
 
 ```bash
-cargo build -p gopher-mcp-server
-cargo run -p gopher-mcp-server -- --no-tls --config examples/rss-demo.toml
+cp examples/rss-demo.toml ~/.gopher-mcp.toml
+gopher-mcp-tui browse feed.hackernews/
+gopher-mcp-tui fetch feed.hackernews/entry/0
 ```
 
-Then browse the content via MCP tools (`gopher_browse`, `gopher_fetch`, `gopher_search`).
+Or launch the TUI:
+
+```bash
+gopher-mcp-tui
+```
+
+### Server
+
+Start a server with the config and connect to it:
+
+```bash
+cargo run -p gopher-mcp-server -- --no-tls --config examples/rss-demo.toml
+gopher-mcp-tui --url http://127.0.0.1:8443 browse feed.hackernews/
+```
 
 ## Configs
 
@@ -18,6 +38,13 @@ Then browse the content via MCP tools (`gopher_browse`, `gopher_fetch`, `gopher_
 Fetches the Hacker News front page feed and serves it as a navigable menu. Each entry becomes a fetchable document with title, date, summary, and links.
 
 ```bash
+# CLI
+cp examples/rss-demo.toml ~/.gopher-mcp.toml
+gopher-mcp-tui browse feed.hackernews/
+gopher-mcp-tui fetch feed.hackernews/entry/0
+gopher-mcp-tui search feed.hackernews/ "rust"
+
+# Server
 cargo run -p gopher-mcp-server -- --no-tls --config examples/rss-demo.toml
 ```
 
@@ -34,6 +61,12 @@ feed.hackernews/category/...  → category submenus (if the feed uses them)
 Parses `sample.ttl` (a small RDF graph of people, projects, and languages) and builds a class-centric navigation hierarchy.
 
 ```bash
+# CLI
+cp examples/rdf-demo.toml ~/.gopher-mcp.toml
+gopher-mcp-tui browse rdf.demo/
+gopher-mcp-tui fetch "rdf.demo/resource/http_example.org_alice"
+
+# Server
 cargo run -p gopher-mcp-server -- --no-tls --config examples/rdf-demo.toml
 ```
 
@@ -51,17 +84,29 @@ rdf.demo/resource/http_example.org_gopher-mcp → project properties
 A writable namespace backed by the filesystem. Agents can publish, browse, fetch, search, and delete documents. Parent directories are created automatically on publish; menus regenerate from the directory structure after every write or delete.
 
 ```bash
-cargo run -p gopher-mcp-server -- --no-tls --config examples/vault-demo.toml
-```
+# CLI
+cp examples/vault-demo.toml ~/.gopher-mcp.toml
 
-Workflow:
-```
-gopher_publish("vault/notes/idea.md", "# My idea\n...")  → write a note
-gopher_browse("vault/")                                   → list folders and notes
-gopher_browse("vault/notes")                              → list notes in notes/
-gopher_fetch("vault/notes/idea.md")                       → read a note
-gopher_search("vault/", "idea")                           → find notes matching "idea"
-gopher_delete("vault/notes/idea.md")                      → remove a note
+gopher-mcp-tui publish vault/notes/idea.md --content "# My idea
+This could work."
+gopher-mcp-tui browse vault/
+gopher-mcp-tui browse vault/notes/
+gopher-mcp-tui fetch vault/notes/idea.md
+gopher-mcp-tui search vault/ "idea"
+gopher-mcp-tui delete vault/notes/idea.md
+
+# Pipe content from stdin
+echo "Quick note" | gopher-mcp-tui publish vault/scratch.md
+
+# Copy an article from a feed into the vault
+gopher-mcp-tui fetch feed.hackernews/entry/0 \
+  | gopher-mcp-tui publish vault/saved/hn-top.md
+
+# Bulk-copy an entire feed into the vault
+gopher-mcp-tui dump feed.hackernews/ vault/mirrors/hn
+
+# Server
+cargo run -p gopher-mcp-server -- --no-tls --config examples/vault-demo.toml
 ```
 
 ### `fs-demo.toml` — File System / Wiki
@@ -69,7 +114,12 @@ gopher_delete("vault/notes/idea.md")                      → remove a note
 Serves a local directory tree as navigable content. Directories become menus, text files become documents. Supports `.gophermap` files for curated landing pages.
 
 ```bash
-# Point it at any directory — Jekyll _posts/, a wiki clone, etc.
+# CLI
+cp examples/fs-demo.toml ~/.gopher-mcp.toml
+gopher-mcp-tui browse docs/
+gopher-mcp-tui fetch docs/subdir/page.md
+
+# Server
 cargo run -p gopher-mcp-server -- --no-tls --config examples/fs-demo.toml
 ```
 
@@ -85,6 +135,11 @@ docs/subdir/page.md    → document content
 Fetches a Turtle file from DBpedia (Rust programming language, hundreds of triples) and builds a navigable class/resource hierarchy from it.
 
 ```bash
+# CLI
+cp examples/remote-rdf-demo.toml ~/.gopher-mcp.toml
+gopher-mcp-tui browse rdf.rust/
+
+# Server
 cargo run -p gopher-mcp-server -- --no-tls --config examples/remote-rdf-demo.toml
 ```
 
@@ -93,7 +148,24 @@ cargo run -p gopher-mcp-server -- --no-tls --config examples/remote-rdf-demo.tom
 Combines an RSS feed, a remote RDF source, and a local Turtle file in a single config. All three sync at startup and coexist under separate namespaces.
 
 ```bash
+# CLI
+cp examples/multi-adapter-demo.toml ~/.gopher-mcp.toml
+gopher-mcp-tui browse                # see all namespaces
+gopher-mcp-tui browse feed.hn/       # browse the feed
+gopher-mcp-tui browse rdf.demo/      # browse the RDF graph
+
+# Server
 cargo run -p gopher-mcp-server -- --no-tls --config examples/multi-adapter-demo.toml
+```
+
+### `gopher-mcp-tui.toml` — TUI + CLI Config
+
+Config for the standalone binary. Shows embedded mode (no `url`), gopherspace sources for the TUI GoTo popup, and adapter examples.
+
+```bash
+cp examples/gopher-mcp-tui.toml ~/.gopher-mcp.toml
+gopher-mcp-tui          # TUI
+gopher-mcp-tui browse   # CLI
 ```
 
 ### `gopher-mcp.toml` — Reference Config
@@ -105,7 +177,7 @@ Adapter types:
 | Type | Required fields | Optional fields |
 |------|----------------|-----------------|
 | `rss` | `namespace`, `url` | — |
-| `fs` | `namespace`, `root` | `extensions` (e.g. `[".md", ".txt"]`), `writable` (bool) |
+| `fs` | `namespace`, `root` | `extensions` (e.g. `["md", "txt"]`), `writable` (bool) |
 | `rdf` | `namespace`, `format` | `source` (file or URL), `sparql_endpoint` |
 
 ## Data Files
@@ -136,7 +208,7 @@ url = "https://hnrss.org/frontpage"
 type = "fs"
 namespace = "docs"
 root = "/path/to/wiki"
-extensions = [".md"]
+extensions = ["md"]
 
 [[adapter]]
 type = "rdf"

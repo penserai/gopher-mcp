@@ -15,5 +15,11 @@ Save a note to the vault.
 - If content is provided inline, use it directly
 - If content is `-` or missing, ask the user what to write
 - Always format as markdown with a `# Title` derived from the filename
-- Use `gopher_publish` to save
-- Confirm with the full vault path after publishing
+
+Publish using the CLI:
+
+```bash
+gopher-mcp-tui publish vault/[path] --content "[markdown content]"
+```
+
+Confirm with the full vault path after publishing.

@@ -12,11 +12,21 @@ If no namespace is given, default to `feed.hackernews`.
 
 ### 1. Browse the feed
 
-Use `gopher_browse` on the namespace root (e.g., `feed.hackernews/`) to get the list of entries.
+List entries in the feed:
+
+```bash
+gopher-mcp-tui browse feed.hackernews/
+```
 
 ### 2. Read every entry
 
-Use `gopher_fetch` on each TextFile item to get the full content. Work through all of them.
+Fetch each TextFile item to get the full content. Work through all of them:
+
+```bash
+gopher-mcp-tui fetch feed.hackernews/entry/0
+gopher-mcp-tui fetch feed.hackernews/entry/1
+# ... continue for each entry
+```
 
 ### 3. Categorize and summarize
 
@@ -44,6 +54,10 @@ Date: [today]
 
 ### 5. Publish to vault
 
-Use `gopher_publish` to save to `vault/digests/[feed-name]-[YYYY-MM-DD].md`.
+Save the digest:
+
+```bash
+gopher-mcp-tui publish vault/digests/[feed-name]-[YYYY-MM-DD].md --content "[digest content]"
+```
 
 Show the user the final digest.

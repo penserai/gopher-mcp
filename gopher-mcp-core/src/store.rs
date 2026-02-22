@@ -97,7 +97,7 @@ impl LocalStore {
         
         let sub_menu = vec![
             MenuItem {
-                itype: ItemType::TextFile,
+                itype: ItemType::Menu,
                 display: "Back to root".to_string(),
                 selector: "".to_string(),
                 host: "local".to_string(),

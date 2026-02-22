@@ -1,0 +1,64 @@
+# gopher-mcp config
+# Copy to ~/.gopher-mcp.toml
+#
+# Used by both CLI commands and the interactive TUI.
+# The binary embeds the engine — no server needed.
+#
+# CLI examples:
+#   gopher-mcp-tui browse                     # list all namespaces
+#   gopher-mcp-tui browse feed.hackernews/    # browse a feed
+#   gopher-mcp-tui fetch feed.hackernews/entry/0  # read an entry
+#   gopher-mcp-tui search feed.hackernews/ "rust"  # search
+#   gopher-mcp-tui publish vault/note.md --content "hello"  # write
+#   gopher-mcp-tui                            # launch interactive TUI
+#
+# Remote mode — uncomment to connect to a running gopher-mcp-server
+# instead of using the embedded engine.
+# Also settable via --url flag or GOPHER_MCP_URL env var.
+# url = "http://127.0.0.1:8443"
+
+# Gopherspace sources (live gopher servers on port 70).
+# Used in the TUI GoTo popup and reachable from CLI browse/fetch.
+sources = [
+    "gopher.floodgap.com/",
+    "gopher.quux.org/",
+    "gopherpedia.com/",
+    "gopher.club/",
+    "cosmic.voyage/",
+    "rawtext.club/",
+    "tilde.team/",
+    "sdf.org/",
+    "bitreich.org/",
+    "circumlunar.space/",
+]
+
+# Adapters — synced into the embedded engine at startup.
+# Adapter namespaces are auto-added to the TUI GoTo popup
+# and appear in `gopher-mcp-tui browse` output.
+
+# RSS / Atom feed
+[[adapter]]
+type = "rss"
+namespace = "feed.hackernews"
+url = "https://hnrss.org/frontpage"
+
+# Writable file system (agent vault)
+# [[adapter]]
+# type = "fs"
+# namespace = "vault"
+# root = "/path/to/.gopher-mcp-vault"
+# writable = true
+
+# Read-only file system (documentation, notes)
+# [[adapter]]
+# type = "fs"
+# namespace = "docs"
+# root = "/path/to/notes"
+# extensions = ["md", "txt"]
+
+# RDF knowledge graph with SPARQL search
+# [[adapter]]
+# type = "rdf"
+# namespace = "rdf.dbpedia"
+# sparql_endpoint = "https://dbpedia.org/sparql"
+# format = "turtle"
