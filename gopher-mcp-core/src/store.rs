@@ -42,6 +42,29 @@ impl LocalStore {
         content.contains_key(name)
     }
 
+    /// Remove a single content node. Returns `true` if the node existed.
+    pub fn remove_content(&self, namespace: &str, selector: &str) -> bool {
+        let mut content = self.content.write().unwrap();
+        if let Some(ns_map) = content.get_mut(namespace) {
+            ns_map.remove(selector).is_some()
+        } else {
+            false
+        }
+    }
+
+    /// Return all selectors in a namespace that start with `prefix`.
+    pub fn selectors_with_prefix(&self, namespace: &str, prefix: &str) -> Vec<String> {
+        let content = self.content.read().unwrap();
+        if let Some(ns_map) = content.get(namespace) {
+            ns_map.keys()
+                .filter(|k| k.starts_with(prefix))
+                .cloned()
+                .collect()
+        } else {
+            Vec::new()
+        }
+    }
+
     pub fn seed_example(&self) {
         self.register_namespace("local");
         

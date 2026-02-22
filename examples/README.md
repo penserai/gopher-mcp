@@ -46,21 +46,22 @@ rdf.demo/resource/http_example.org_alice     → Alice's triples as a document
 rdf.demo/resource/http_example.org_gopher-mcp → project properties
 ```
 
-### `obsidian-vault.toml` — Obsidian Vault
+### `vault-demo.toml` — Agent Vault (Writable)
 
-Gives an AI agent browsable, searchable access to an Obsidian vault. Only `.md` files are served, so binary attachments (images, PDFs) stay out of results — agents see pure text, saving tokens.
+A writable namespace backed by the filesystem. Agents can publish, browse, fetch, search, and delete documents. Parent directories are created automatically on publish; menus regenerate from the directory structure after every write or delete.
 
 ```bash
-# Edit the root path in the config first, then:
-cargo run -p gopher-mcp-server -- --no-tls --config examples/obsidian-vault.toml
+cargo run -p gopher-mcp-server -- --no-tls --config examples/vault-demo.toml
 ```
 
-Navigation:
+Workflow:
 ```
-vault/                     → top-level folders and notes
-vault/Projects             → notes in Projects/
-vault/Projects/idea        → read a specific note
-vault/ + search "rust"     → find notes matching "rust"
+gopher_publish("vault/notes/idea.md", "# My idea\n...")  → write a note
+gopher_browse("vault/")                                   → list folders and notes
+gopher_browse("vault/notes")                              → list notes in notes/
+gopher_fetch("vault/notes/idea.md")                       → read a note
+gopher_search("vault/", "idea")                           → find notes matching "idea"
+gopher_delete("vault/notes/idea.md")                      → remove a note
 ```
 
 ### `fs-demo.toml` — File System / Wiki
@@ -104,7 +105,7 @@ Adapter types:
 | Type | Required fields | Optional fields |
 |------|----------------|-----------------|
 | `rss` | `namespace`, `url` | — |
-| `fs` | `namespace`, `root` | `extensions` (e.g. `[".md", ".txt"]`) |
+| `fs` | `namespace`, `root` | `extensions` (e.g. `[".md", ".txt"]`), `writable` (bool) |
 | `rdf` | `namespace`, `format` | `source` (file or URL), `sparql_endpoint` |
 
 ## Data Files

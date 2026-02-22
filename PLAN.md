@@ -408,7 +408,7 @@ Options:
 - ~~**SPARQL-backed search** — route `gopher_search` calls on RDF namespaces to native SPARQL queries instead of menu filtering~~ *(done)*
 - **Live sync** — background refresh for adapters with configurable TTL (e.g., poll an RSS feed every 15 minutes)
 - **Agent access control** — enforce per-agent namespace permissions based on client cert CN
-- **Content management tools** — MCP tools for agents to publish content to local namespaces
+- ~~**Content management tools** — MCP tools for agents to publish content to local namespaces~~ *(done)*
 - **Binary content** — support fetching and serving binary files (images, archives)
 - **Gopher+ extensions** — handle Gopher+ metadata attributes
 - **Caching** — cache proxied Gopher content with TTL

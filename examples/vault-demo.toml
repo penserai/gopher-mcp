@@ -1,0 +1,23 @@
+# Agent vault — a writable namespace backed by the filesystem.
+#
+# The agent can publish, browse, fetch, search, and delete documents.
+# Parent directories are created automatically on publish. Menus are
+# regenerated from the directory structure after every write/delete.
+#
+# Usage:
+#   cargo run -p gopher-mcp-server -- --no-tls --config examples/vault-demo.toml
+#
+# Then ask your agent to:
+#   gopher_publish("vault/notes/idea.md", "# My idea\n...")  — write a note
+#   gopher_browse("vault/")                                   — list folders and notes
+#   gopher_browse("vault/notes")                              — list notes in notes/
+#   gopher_fetch("vault/notes/idea.md")                       — read a note
+#   gopher_search("vault/", "idea")                           — find notes matching "idea"
+#   gopher_delete("vault/notes/idea.md")                      — remove a note
+
+[[adapter]]
+type = "fs"
+namespace = "vault"
+root = "/tmp/agent-vault"
+extensions = [".md"]
+writable = true

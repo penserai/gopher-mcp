@@ -20,6 +20,10 @@ pub enum AdapterError {
     Parse(String),
     #[error("Config error: {0}")]
     Config(String),
+    #[error("Not writable: {0}")]
+    NotWritable(String),
+    #[error("Path traversal rejected: {0}")]
+    PathTraversal(String),
 }
 
 #[async_trait]
@@ -32,4 +36,17 @@ pub trait SourceAdapter: Send + Sync {
 
     /// Optional: handle search queries natively instead of filtering menu entries
     async fn search(&self, selector: &str, query: &str) -> Option<Vec<MenuItem>>;
+
+    /// Whether this adapter supports write operations (publish/delete).
+    fn is_writable(&self) -> bool { false }
+
+    /// Write or update a document at `selector` with the given `content`.
+    async fn publish(&self, _store: &LocalStore, _selector: &str, _content: &str) -> Result<(), AdapterError> {
+        Err(AdapterError::NotWritable(self.namespace().to_string()))
+    }
+
+    /// Delete the document or directory at `selector`.
+    async fn delete(&self, _store: &LocalStore, _selector: &str) -> Result<(), AdapterError> {
+        Err(AdapterError::NotWritable(self.namespace().to_string()))
+    }
 }

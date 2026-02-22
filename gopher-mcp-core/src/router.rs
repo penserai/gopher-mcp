@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use crate::gopher::{MenuItem, GopherClient};
 use crate::store::{LocalStore, ContentNode};
-use crate::adapters::SourceAdapter;
+use crate::adapters::{AdapterError, SourceAdapter};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -11,6 +11,10 @@ pub enum RouterError {
     SelectorNotFound(String, String),
     #[error("Gopher error: {0}")]
     Gopher(#[from] crate::gopher::GopherError),
+    #[error("Not writable: {0}")]
+    NotWritable(String),
+    #[error("Adapter error: {0}")]
+    Adapter(#[from] AdapterError),
 }
 
 pub struct Router {
@@ -97,6 +101,42 @@ impl Router {
         } else {
             (path, "")
         }
+    }
+
+    pub async fn publish(&self, path: &str, content: &str) -> Result<(), RouterError> {
+        let (host, selector) = self.parse_path(path);
+
+        if !self.is_local(host) {
+            return Err(RouterError::NotWritable(host.to_string()));
+        }
+
+        let adapter = self.adapters.get(host)
+            .ok_or_else(|| RouterError::NotWritable(host.to_string()))?;
+
+        if !adapter.is_writable() {
+            return Err(RouterError::NotWritable(host.to_string()));
+        }
+
+        adapter.publish(&self.local_store, selector, content).await?;
+        Ok(())
+    }
+
+    pub async fn delete(&self, path: &str) -> Result<(), RouterError> {
+        let (host, selector) = self.parse_path(path);
+
+        if !self.is_local(host) {
+            return Err(RouterError::NotWritable(host.to_string()));
+        }
+
+        let adapter = self.adapters.get(host)
+            .ok_or_else(|| RouterError::NotWritable(host.to_string()))?;
+
+        if !adapter.is_writable() {
+            return Err(RouterError::NotWritable(host.to_string()));
+        }
+
+        adapter.delete(&self.local_store, selector).await?;
+        Ok(())
     }
 
     fn is_local(&self, host: &str) -> bool {

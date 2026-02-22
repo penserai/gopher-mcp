@@ -28,6 +28,8 @@ pub enum AdapterConfig {
         namespace: String,
         root: String,
         extensions: Option<Vec<String>>,
+        #[serde(default)]
+        writable: bool,
     },
 
     #[cfg(feature = "adapter-rdf")]
@@ -64,12 +66,13 @@ pub fn create_adapters(
             }
 
             #[cfg(feature = "adapter-fs")]
-            AdapterConfig::Fs { namespace, root, extensions } => {
-                info!(namespace = %namespace, root = %root, "Creating FS adapter");
+            AdapterConfig::Fs { namespace, root, extensions, writable } => {
+                info!(namespace = %namespace, root = %root, writable = %writable, "Creating FS adapter");
                 let adapter = gopher_mcp_core::FsAdapter::new(
                     namespace.clone(),
                     PathBuf::from(root),
                     extensions.clone(),
+                    *writable,
                 )?;
                 adapters.push(Arc::new(adapter));
             }

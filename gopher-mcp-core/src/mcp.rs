@@ -111,6 +111,29 @@ impl McpHandler {
                     },
                     "required": ["path", "query"]
                 }
+            },
+            {
+                "name": "gopher_publish",
+                "description": "Write or update a document. Creates parent directories as needed. Only works on writable namespaces.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "path": { "type": "string", "description": "host/selector (e.g., vault/notes/idea.md)" },
+                        "content": { "type": "string", "description": "The document content to write" }
+                    },
+                    "required": ["path", "content"]
+                }
+            },
+            {
+                "name": "gopher_delete",
+                "description": "Delete a document or directory. Only works on writable namespaces.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "path": { "type": "string", "description": "host/selector (e.g., vault/notes/idea.md)" }
+                    },
+                    "required": ["path"]
+                }
             }
         ]);
 
@@ -173,6 +196,21 @@ impl McpHandler {
                 let query = arguments.get("query").and_then(|q| q.as_str()).unwrap_or("");
                 match self.router.search(path, query).await {
                     Ok(items) => Self::menu_items_response(items),
+                    Err(e) => Self::tool_error(e),
+                }
+            },
+            "gopher_publish" => {
+                let path = arguments.get("path").and_then(|p| p.as_str()).unwrap_or("");
+                let content = arguments.get("content").and_then(|c| c.as_str()).unwrap_or("");
+                match self.router.publish(path, content).await {
+                    Ok(()) => serde_json::json!({ "content": [{ "type": "text", "text": format!("Published: {}", path) }] }),
+                    Err(e) => Self::tool_error(e),
+                }
+            },
+            "gopher_delete" => {
+                let path = arguments.get("path").and_then(|p| p.as_str()).unwrap_or("");
+                match self.router.delete(path).await {
+                    Ok(()) => serde_json::json!({ "content": [{ "type": "text", "text": format!("Deleted: {}", path) }] }),
                     Err(e) => Self::tool_error(e),
                 }
             },
