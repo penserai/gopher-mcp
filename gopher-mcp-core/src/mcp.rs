@@ -134,6 +134,19 @@ impl McpHandler {
                     },
                     "required": ["path"]
                 }
+            },
+            {
+                "name": "gopher_dump",
+                "description": "Recursively copy documents from a source into a writable namespace. Walks menus up to max_depth levels and publishes each document found.",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "source": { "type": "string", "description": "Source path to walk (e.g., rdf.demo/, feed.hn/)" },
+                        "destination": { "type": "string", "description": "Writable destination prefix (e.g., vault/mirrors/hn)" },
+                        "max_depth": { "type": "integer", "description": "Maximum menu depth to recurse (default: 3)" }
+                    },
+                    "required": ["source", "destination"]
+                }
             }
         ]);
 
@@ -211,6 +224,15 @@ impl McpHandler {
                 let path = arguments.get("path").and_then(|p| p.as_str()).unwrap_or("");
                 match self.router.delete(path).await {
                     Ok(()) => serde_json::json!({ "content": [{ "type": "text", "text": format!("Deleted: {}", path) }] }),
+                    Err(e) => Self::tool_error(e),
+                }
+            },
+            "gopher_dump" => {
+                let source = arguments.get("source").and_then(|s| s.as_str()).unwrap_or("");
+                let destination = arguments.get("destination").and_then(|d| d.as_str()).unwrap_or("");
+                let max_depth = arguments.get("max_depth").and_then(|d| d.as_u64()).unwrap_or(3) as u32;
+                match self.router.dump(source, destination, max_depth).await {
+                    Ok(result) => serde_json::json!({ "content": [{ "type": "text", "text": format!("Dumped {} documents ({} skipped) from {} to {}", result.published, result.skipped, source, destination) }] }),
                     Err(e) => Self::tool_error(e),
                 }
             },

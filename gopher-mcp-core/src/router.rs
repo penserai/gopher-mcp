@@ -3,7 +3,13 @@ use std::sync::Arc;
 use crate::gopher::{MenuItem, GopherClient};
 use crate::store::{LocalStore, ContentNode};
 use crate::adapters::{AdapterError, SourceAdapter};
+use crate::gopher::ItemType;
 use thiserror::Error;
+
+pub struct DumpResult {
+    pub published: u32,
+    pub skipped: u32,
+}
 
 #[derive(Error, Debug)]
 pub enum RouterError {
@@ -136,6 +142,61 @@ impl Router {
         }
 
         adapter.delete(&self.local_store, selector).await?;
+        Ok(())
+    }
+
+    pub async fn dump(&self, source: &str, destination: &str, max_depth: u32) -> Result<DumpResult, RouterError> {
+        let mut result = DumpResult { published: 0, skipped: 0 };
+        self.dump_recursive(source, destination, 0, max_depth, &mut result).await?;
+        Ok(result)
+    }
+
+    async fn dump_recursive(
+        &self,
+        source: &str,
+        dest: &str,
+        depth: u32,
+        max_depth: u32,
+        result: &mut DumpResult,
+    ) -> Result<(), RouterError> {
+        let items = match self.browse(source).await {
+            Ok(items) => items,
+            Err(_) => {
+                result.skipped += 1;
+                return Ok(());
+            }
+        };
+
+        for item in items {
+            match item.itype {
+                ItemType::Menu => {
+                    if depth < max_depth {
+                        let child_source = format!("{}/{}", item.host, item.selector.trim_start_matches('/'));
+                        let child_dest = format!("{}/{}", dest.trim_end_matches('/'), item.display);
+                        Box::pin(self.dump_recursive(&child_source, &child_dest, depth + 1, max_depth, result)).await?;
+                    } else {
+                        result.skipped += 1;
+                    }
+                }
+                ItemType::TextFile | ItemType::Html => {
+                    let fetch_path = format!("{}/{}", item.host, item.selector.trim_start_matches('/'));
+                    match self.fetch(&fetch_path).await {
+                        Ok(content) => {
+                            let publish_path = format!("{}/{}", dest.trim_end_matches('/'), item.display);
+                            self.publish(&publish_path, &content).await?;
+                            result.published += 1;
+                        }
+                        Err(_) => {
+                            result.skipped += 1;
+                        }
+                    }
+                }
+                _ => {
+                    result.skipped += 1;
+                }
+            }
+        }
+
         Ok(())
     }
 

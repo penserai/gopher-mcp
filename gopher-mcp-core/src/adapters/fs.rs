@@ -94,8 +94,8 @@ impl FsAdapter {
                         e.eq_ignore_ascii_case(ext)
                     })
                 } else {
-                    // Files without an extension are excluded when a filter is set
-                    false
+                    // Include extensionless files only when "" is in the filter
+                    exts.iter().any(|e| e.is_empty() || e == ".")
                 }
             }
         }
