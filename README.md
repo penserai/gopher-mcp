@@ -1,8 +1,8 @@
 # gopher-mcp
 
 MCP server for structured content discovery. Connects AI agents to local files,
-RSS/Atom feeds, RDF knowledge graphs, and Gopher servers through three uniform
-tools: browse, fetch, and search.
+RSS/Atom feeds, RDF knowledge graphs, and Gopher servers through uniform
+tools: browse, fetch, search, publish, and delete.
 
 ```
        ┌───────┐     ┌───────┐     ┌────────┐     ┌───────┐
@@ -16,6 +16,15 @@ tools: browse, fetch, and search.
   ░░░░░░░░░░└─────────────┴──────────────┴───────┘░░░░░░░░░░░░░
   ░░░░░░░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
   ░░░░░░░░░░░░░░░░░░░░░>(•.•)>░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░░░░░░░░│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░┌───────┴───────┐░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░│  ◊  V A U L T │░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░│  publish  ↓↑  │░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░│  delete   ×   │░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░│  browse   ☰   │░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░│  fetch    ◆   │░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░│  search   ⌕   │░░░░░░░░░░░░░░░░░░░░░░░░░░░
+  ░░░░░░░░░░░░░░░░░└───────────────┘░░░░░░░░░░░░░░░░░░░░░░░░░░░
   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ```
 
@@ -23,7 +32,7 @@ tools: browse, fetch, and search.
 
 | Source | Example | How it works |
 |--------|---------|-------------|
-| **File System** | Obsidian vault, Jekyll `_posts/`, any directory tree | Directories become menus, text files become documents |
+| **File System** | Agent vault, Jekyll `_posts/`, any directory tree | Directories become menus, text files become documents. Writable namespaces support publish/delete. |
 | **RSS / Atom** | Hacker News, blog feeds | Feed entries become documents under a channel menu |
 | **RDF / SPARQL** | Knowledge graphs, DBpedia, local Turtle files | Classes become menus, resources become documents, SPARQL backs search |
 | **Gopher servers** | `gopher.floodgap.com` | Transparent TCP proxy to live Gopherspace |
@@ -101,6 +110,8 @@ match handler.handle(request).await {
 - `gopher_browse(path)`: Navigate a content hierarchy. Returns structured items with type, display text, and navigable path.
 - `gopher_fetch(path)`: Retrieve a document's text content.
 - `gopher_search(path, query)`: Search a search endpoint or filter local menu entries.
+- `gopher_publish(path, content)`: Write or update a document. Creates parent directories as needed. Only works on writable namespaces.
+- `gopher_delete(path)`: Delete a document or directory. Only works on writable namespaces.
 
 Path format: `host/selector` (e.g., `docs/readme.md`, `feed.hn/entry/0`, `gopher.floodgap.com/`)
 
