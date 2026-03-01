@@ -30,6 +30,10 @@ single CLI and TUI — no server required.
 
 ## What It Does
 
+All data sources are projected into a uniform menu/document hierarchy using
+the Gopher content model. Paths follow the format `namespace/selector`
+(e.g., `local/welcome`, `feed.hackernews/`, `vault/notes/idea.md`).
+
 | Source | Example | How it works |
 |--------|---------|-------------|
 | **File System** | Agent vault, Jekyll `_posts/`, any directory tree | Directories become menus, text files become documents. Writable namespaces support publish/delete. |
@@ -37,45 +41,69 @@ single CLI and TUI — no server required.
 | **RDF / SPARQL** | Knowledge graphs, DBpedia, local Turtle files | Classes become menus, resources become documents, SPARQL backs search |
 | **Gopher servers** | `gopher.floodgap.com` | Transparent TCP proxy to live Gopherspace |
 
-All sources are projected into a uniform menu/document hierarchy. Paths use the format `namespace/selector` (e.g., `local/welcome`, `feed.hackernews/`, `vault/notes/idea.md`).
-
 ## Quick Start
 
 ```bash
+# Build
 cargo build -p gopher-cli --release
 
 # Browse all namespaces
-./target/release/gopher-cli browse
+gopher-cli browse
 
 # Browse a namespace
-./target/release/gopher-cli browse local/
+gopher-cli browse local/
 
 # Read a document
-./target/release/gopher-cli fetch local/welcome
+gopher-cli fetch local/welcome
 
 # Launch the interactive TUI
-./target/release/gopher-cli
+gopher-cli
 ```
+
+## Installation
+
+### From source
+
+```bash
+git clone https://github.com/penserai/gopher-cli.git
+cd gopher-cli
+cargo install --path gopher-cli
+```
+
+### Cross-compilation
+
+```bash
+make build              # Release build for host (darwin-arm64)
+make build-darwin-arm64 # aarch64-apple-darwin
+make build-darwin-x86   # x86_64-apple-darwin
+make build-linux-arm64  # aarch64-unknown-linux-gnu (requires cross)
+make build-linux-x86    # x86_64-unknown-linux-gnu (requires cross)
+make build-all          # All architectures
+```
+
+Darwin targets use native `cargo build`. Linux targets use [`cross`](https://github.com/cross-rs/cross) (Docker-based). Binaries output to `dist/`.
 
 ## CLI
 
-The CLI is designed to be the primary interface for both humans and agents. It embeds the full engine — no server process needed.
+The CLI is the primary interface for both humans and agents. It embeds the
+full content engine — no server process needed.
 
 ### Commands
 
 ```
-gopher-cli browse [path]                 List items at a path
-gopher-cli fetch <path>                  Retrieve document content
-gopher-cli search <path> <query>         Search within a namespace
+gopher-cli browse [path]                  List items at a path
+gopher-cli fetch <path>                   Retrieve document content
+gopher-cli search <path> <query>          Search within a namespace
 gopher-cli publish <path> [--content ..]  Write a document
-gopher-cli delete <path>                 Delete a document
-gopher-cli dump <source> <dest>          Bulk-copy between namespaces
-gopher-cli [tui]                         Launch interactive browser
+gopher-cli delete <path>                  Delete a document
+gopher-cli dump <source> <dest>           Bulk-copy between namespaces
+gopher-cli [tui]                          Launch interactive browser
 ```
 
 ### Output Format
 
-**Auto-JSON when piped.** When stdout is not a terminal (i.e., captured by a script or agent), output is automatically JSON. On a TTY, output is human-friendly text. Force JSON with `--json`.
+Output is automatically JSON when stdout is piped (for scripts and agents).
+On a TTY, output is human-friendly text. Force JSON anytime with `--json`.
 
 ```bash
 # Human — sees formatted text
@@ -87,7 +115,7 @@ gopher-cli browse local/
 # Agent — stdout piped, gets JSON automatically
 result=$(gopher-cli browse local/)
 echo "$result"
-# [{"type":"0","type_name":"TextFile","display":"Welcome to gopher-cli","path":"local/welcome","mime":"text/plain"}, ...]
+# [{"type":"0","type_name":"TextFile","display":"Welcome to gopher-cli", ...}, ...]
 ```
 
 ### Browse
@@ -95,17 +123,10 @@ echo "$result"
 List items at a path. With no path, lists all available namespaces.
 
 ```bash
-# List all namespaces
-gopher-cli browse
-
-# List items in a namespace
-gopher-cli browse local/
-
-# Browse a subdirectory
-gopher-cli browse local/sub
-
-# Browse a live Gopher server
-gopher-cli browse gopher.floodgap.com/
+gopher-cli browse                       # all namespaces
+gopher-cli browse local/                # items in a namespace
+gopher-cli browse local/sub             # subdirectory
+gopher-cli browse gopher.floodgap.com/  # live Gopher server
 ```
 
 ### Fetch
@@ -113,48 +134,35 @@ gopher-cli browse gopher.floodgap.com/
 Retrieve a document's text content.
 
 ```bash
-# Read a local document
 gopher-cli fetch local/welcome
-
-# Read an RSS entry
 gopher-cli fetch feed.hackernews/entry/0
-
-# Read from a Gopher server
 gopher-cli fetch gopher.floodgap.com/gopher/tech/
-
-# Save to a file
-gopher-cli fetch feed.hackernews/entry/0 > article.txt
+gopher-cli fetch feed.hackernews/entry/0 > article.txt  # save to file
 ```
 
 ### Search
 
-Search within a namespace or path. Filters menu entries by query string; adapters with native search (RDF/SPARQL) use their own engine.
+Search within a namespace. Filters menu entries by query string; adapters
+with native search (RDF/SPARQL) use their own engine.
 
 ```bash
-# Search across a namespace
 gopher-cli search local/ "welcome"
-
-# Search an RSS feed
 gopher-cli search feed.hackernews/ "rust"
-
-# Search a Gopher server's search endpoint
 gopher-cli search gopherpedia.com/ "gopher protocol"
 ```
 
 ### Publish
 
-Write or update a document. Reads content from `--content` or stdin. Only works on writable namespaces (e.g., `vault`).
+Write or update a document. Reads content from `--content` or stdin. Only
+works on writable namespaces (e.g., `vault`).
 
 ```bash
-# Publish with inline content
+# Inline content
 gopher-cli publish vault/notes/idea.md --content "# My Idea
 This could work."
 
-# Publish from stdin
+# From stdin
 echo "Quick note" | gopher-cli publish vault/scratch.md
-
-# Pipe a file
-cat report.md | gopher-cli publish vault/reports/q1.md
 
 # Pipe from another command
 gopher-cli fetch feed.hackernews/entry/0 | gopher-cli publish vault/saved/hn-top.md
@@ -170,16 +178,12 @@ gopher-cli delete vault/notes/idea.md
 
 ### Dump
 
-Recursively copy documents from a source into a writable namespace. Walks menus up to `--max-depth` levels (default: 3).
+Recursively copy documents from a source into a writable namespace. Walks
+menus up to `--max-depth` levels (default: 3).
 
 ```bash
-# Mirror an RSS feed into the vault
 gopher-cli dump feed.hackernews/ vault/mirrors/hn
-
-# Mirror with limited depth
 gopher-cli dump rdf.demo/ vault/mirrors/rdf --max-depth 2
-
-# Mirror a Gopher server subtree
 gopher-cli dump gopher.floodgap.com/gopher/tech vault/mirrors/floodgap-tech
 ```
 
@@ -187,13 +191,13 @@ gopher-cli dump gopher.floodgap.com/gopher/tech vault/mirrors/floodgap-tech
 
 | Option | Env Var | Description |
 |--------|---------|-------------|
-| `--url <URL>` | `GOPHER_CLI_URL` | Connect to a remote gopher-cli server instead of embedded engine |
+| `--url <URL>` | `GOPHER_CLI_URL` | Connect to a remote server instead of the embedded engine |
 | `--no-seed` | | Skip seeding example content into the `local` namespace |
 | `--json` | | Force JSON output (auto-enabled when stdout is piped) |
 
 ### Connection Precedence
 
-The CLI defaults to the embedded engine. To connect to a remote server instead:
+The CLI defaults to the embedded engine. To connect to a remote server:
 
 1. `--url` flag (highest priority)
 2. `GOPHER_CLI_URL` environment variable
@@ -201,13 +205,12 @@ The CLI defaults to the embedded engine. To connect to a remote server instead:
 4. Embedded engine (default — no server needed)
 
 ```bash
-# Use a remote server for one command
+# One-off remote command
 gopher-cli --url http://localhost:8443 browse
 
 # Set for the whole session
 export GOPHER_CLI_URL=http://localhost:8443
 gopher-cli browse
-gopher-cli fetch local/welcome
 ```
 
 ### Exit Codes
@@ -215,18 +218,39 @@ gopher-cli fetch local/welcome
 | Code | Meaning |
 |------|---------|
 | `0` | Success |
-| `1` | Error (details on stderr) |
+| `1` | Error (details on stderr, structured JSON when piped) |
 
-Errors are structured JSON when output is piped:
+## TUI
+
+The interactive terminal browser. Launches when no subcommand is given.
 
 ```bash
-gopher-cli fetch nonexistent/path 2>&1 >/dev/null
-# {"error":"Fetch failed: Selector not found: ..."}
+gopher-cli                  # start at root
+gopher-cli tui               # explicit
+gopher-cli tui local/        # start at a specific path
 ```
+
+### Keybindings
+
+| Key | Action |
+|-----|--------|
+| `j`/`k` or arrows | Navigate menu |
+| `Enter` | Open item |
+| `b` or `Backspace` | Go back |
+| `Tab` | Switch pane (menu / content) |
+| `Space` | Page down (content pane) |
+| `PgUp`/`PgDn` | Scroll content |
+| `/` | Search within current namespace |
+| `:` | GoTo popup (jump to any namespace) |
+| `Tab` (in GoTo) | Expand/collapse directory |
+| `Home` | Go to root |
+| `q` | Quit |
 
 ## Agent Usage
 
-The CLI is built so agents can use Bash tool calls instead of MCP. Auto-JSON output, structured errors, pipe-friendly publish, and composable commands.
+The CLI is built so AI agents can use Bash tool calls instead of MCP.
+Auto-JSON output, structured errors, pipe-friendly publish, and composable
+commands mean agents can work with gopher-cli using only the Bash tool.
 
 ### Discovery
 
@@ -249,7 +273,6 @@ gopher-cli fetch vault/research/topic.md
 
 # Search then read the first result
 gopher-cli search vault/ "machine learning"
-# → pick a path from the results
 gopher-cli fetch vault/research/ml-overview.md
 ```
 
@@ -275,28 +298,6 @@ gopher-cli dump feed.hackernews/ vault/mirrors/hn
 gopher-cli browse vault/mirrors/hn/
 ```
 
-### Agent Workflow Example
-
-An agent researching a topic might:
-
-```bash
-# 1. Search feeds for relevant content
-gopher-cli search feed.hackernews/ "rust async"
-
-# 2. Read the interesting entries
-gopher-cli fetch feed.hackernews/entry/5
-
-# 3. Search existing research notes
-gopher-cli search vault/ "rust"
-
-# 4. Save new findings
-gopher-cli publish vault/research/rust-async.md --content "# Rust Async Patterns
-..."
-
-# 5. Build a mirror for offline access
-gopher-cli dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
-```
-
 ### JSON Output Reference
 
 **Browse / Search** returns an array of items:
@@ -309,13 +310,6 @@ gopher-cli dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
     "display": "Submenu Example",
     "path": "local/sub",
     "mime": "application/x-gopher-menu"
-  },
-  {
-    "type": "0",
-    "type_name": "TextFile",
-    "display": "Welcome to gopher-cli",
-    "path": "local/welcome",
-    "mime": "text/plain"
   }
 ]
 ```
@@ -323,10 +317,7 @@ gopher-cli dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
 **Fetch** returns path and content:
 
 ```json
-{
-  "path": "local/welcome",
-  "content": "This is a local document served by gopher-cli.\nContent here is served directly from the local store."
-}
+{ "path": "local/welcome", "content": "Document text here..." }
 ```
 
 **Publish / Delete** returns confirmation:
@@ -338,13 +329,7 @@ gopher-cli dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
 **Dump** returns counts:
 
 ```json
-{
-  "ok": true,
-  "source": "feed.hackernews/",
-  "destination": "vault/mirrors/hn",
-  "published": 15,
-  "skipped": 2
-}
+{ "ok": true, "source": "feed.hackernews/", "destination": "vault/mirrors/hn", "published": 15, "skipped": 2 }
 ```
 
 **Errors** (on stderr):
@@ -353,7 +338,7 @@ gopher-cli dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
 { "error": "Fetch failed: Selector not found: /missing in local" }
 ```
 
-Item types in browse/search results:
+### Item Types
 
 | `type` | `type_name` | Meaning |
 |--------|-------------|---------|
@@ -363,39 +348,12 @@ Item types in browse/search results:
 | `h` | Html | HTML document — pass to `fetch` |
 | `i` | Info | Display-only text (no path) |
 
-## TUI
-
-The interactive terminal browser. Launches when no subcommand is given.
-
-```bash
-gopher-cli
-gopher-cli tui                    # explicit
-gopher-cli tui local/             # start at a specific path
-```
-
-### Keybindings
-
-| Key | Action |
-|-----|--------|
-| `j`/`k` or arrows | Navigate menu |
-| `Enter` | Open item |
-| `b` or `Backspace` | Go back |
-| `Tab` | Switch pane |
-| `Space` | Page down (content pane) |
-| `/` | Search |
-| `:` | GoTo popup |
-| `Tab` (in GoTo) | Expand/collapse directory |
-| `Home` | Go to root |
-| `PgUp`/`PgDn` | Scroll content |
-| `q` | Quit |
-
-## Config File
+## Config
 
 Place at `~/.gopher-cli.toml`. Used by both CLI commands and the TUI.
 
 ```toml
 # Remote mode — uncomment to connect to a running gopher-cli-server.
-# Comment out (or remove) to use the embedded engine.
 # url = "http://127.0.0.1:8443"
 
 # Gopherspace sources (shown in the TUI GoTo popup)
@@ -405,10 +363,7 @@ sources = [
     "cosmic.voyage/",
 ]
 
-# Adapters — synced at startup in embedded mode.
-# Adapter namespaces are auto-added to the TUI GoTo popup.
-
-# RSS / Atom feeds
+# RSS / Atom feed
 [[adapter]]
 type = "rss"
 namespace = "feed.hackernews"
@@ -418,7 +373,7 @@ url = "https://hnrss.org/frontpage"
 [[adapter]]
 type = "fs"
 namespace = "vault"
-root = "/path/to/.gopher-cli-vault"
+root = "/path/to/vault"
 writable = true
 
 # File system directory (read-only)
@@ -444,41 +399,13 @@ format = "turtle"
 | `fs` | `namespace`, `root` | `extensions` (e.g., `["md", "txt"]`), `writable` (bool) |
 | `rdf` | `namespace` | `source` (file or URL), `format`, `sparql_endpoint` |
 
-## Project Structure
-
-Cargo workspace with three crates:
-
-- **`gopher-cli-core`** — Framework-agnostic library: content router, local store, Gopher client, MCP handler, and adapter trait.
-- **`gopher-cli-server`** — axum HTTP server with mTLS. Use when you need a persistent server process.
-- **`gopher-cli`** — CLI + TUI binary. Embeds the core engine. Self-contained.
-
-```
-gopher-cli/
-├── gopher-cli-core/        # library crate
-│   └── src/
-│       ├── lib.rs           # public re-exports
-│       ├── mcp.rs           # McpHandler (JSON-RPC over HTTP)
-│       ├── router.rs        # Router (local store + Gopher proxy)
-│       ├── gopher.rs        # GopherClient, ItemType, MenuItem
-│       ├── store.rs         # LocalStore, ContentNode
-│       └── adapters/        # SourceAdapter trait + fs, rss, rdf
-├── gopher-cli-server/      # server binary
-│   └── src/
-│       ├── main.rs          # CLI, axum wiring, mTLS
-│       └── tls.rs           # certificate handling
-└── gopher-cli/         # CLI + TUI binary
-    └── src/
-        ├── main.rs          # subcommands, embedded/remote startup
-        ├── cli.rs           # CLI command handlers, auto-JSON
-        ├── app.rs           # TUI state and logic
-        ├── client.rs        # ContentClient trait, McpClient, EmbeddedClient
-        ├── config.rs        # TuiConfig, AdapterConfig, adapter creation
-        └── ui.rs            # ratatui rendering
-```
+Adapters sync their content into the embedded engine at startup. Adapter
+namespaces are automatically added to the TUI GoTo popup.
 
 ## Server
 
-For use cases that need a persistent HTTP endpoint (e.g., MCP integration with AI tools).
+For use cases that need a persistent HTTP endpoint (e.g., MCP integration
+with AI tools that support JSON-RPC).
 
 ```bash
 # Generate dev certificates
@@ -500,15 +427,71 @@ Point the CLI at the server:
 gopher-cli --url http://127.0.0.1:8443 browse local/
 ```
 
-## Cross-Compilation
+The server exposes all six operations (browse, fetch, search, publish,
+delete, dump) as MCP tools over JSON-RPC at `/mcp`, with optional mTLS
+for mutual authentication.
 
-```bash
-make build              # Release build for host (darwin-arm64)
-make build-darwin-arm64 # aarch64-apple-darwin
-make build-darwin-x86   # x86_64-apple-darwin
-make build-linux-arm64  # aarch64-unknown-linux-gnu (requires cross)
-make build-linux-x86    # x86_64-unknown-linux-gnu (requires cross)
-make build-all          # All architectures
+## Architecture
+
+Cargo workspace with three crates:
+
+| Crate | Type | Description |
+|-------|------|-------------|
+| `gopher-cli-core` | Library | Content router, local store, Gopher client, MCP handler, source adapter trait |
+| `gopher-cli` | Binary | CLI + TUI. Embeds the core engine. Self-contained single binary. |
+| `gopher-cli-server` | Binary | axum HTTP server with mTLS. Use when you need a persistent server process. |
+
+```
+├── gopher-cli-core/           # library crate
+│   └── src/
+│       ├── lib.rs              # public re-exports
+│       ├── router.rs           # content router (local store + Gopher proxy)
+│       ├── store.rs            # in-memory content store (namespaces, menus, docs)
+│       ├── gopher.rs           # Gopher client, ItemType, MenuItem
+│       ├── mcp.rs              # MCP JSON-RPC handler and tool definitions
+│       └── adapters/           # SourceAdapter trait + fs, rss, rdf adapters
+├── gopher-cli/                # CLI + TUI binary
+│   └── src/
+│       ├── main.rs             # subcommands, embedded/remote startup
+│       ├── cli.rs              # CLI command handlers, auto-JSON output
+│       ├── client.rs           # ContentClient trait, McpClient, EmbeddedClient
+│       ├── config.rs           # config file parsing, adapter creation
+│       ├── app.rs              # TUI application state and logic
+│       └── ui.rs               # ratatui rendering
+└── gopher-cli-server/         # HTTP server binary
+    └── src/
+        ├── main.rs             # axum wiring, adapter sync, startup
+        ├── config.rs           # server config parsing
+        └── tls.rs              # mTLS certificate handling
 ```
 
-Darwin targets use native `cargo build`. Linux targets use [`cross`](https://github.com/cross-rs/cross) (Docker-based). Binaries output to `dist/`.
+### Content Model
+
+Content is organized as **namespaces** containing **menus** (directories)
+and **documents** (text files), mirroring the Gopher protocol's two
+fundamental content types. The router parses `namespace/selector` paths
+and either looks up local content or proxies to a real Gopher server
+on port 70.
+
+### Source Adapters
+
+Adapters project external data into the local store:
+
+```rust
+#[async_trait]
+pub trait SourceAdapter: Send + Sync {
+    fn namespace(&self) -> &str;
+    async fn sync(&self, store: &LocalStore) -> Result<(), AdapterError>;
+    async fn search(&self, selector: &str, query: &str) -> Option<Vec<MenuItem>>;
+}
+```
+
+| Adapter | Projection |
+|---------|-----------|
+| **RSS/Atom** | Feed channel → root menu, entries → documents, categories → submenus |
+| **File System** | Directories → menus, text files → documents, `.gophermap` → custom menus |
+| **RDF/SPARQL** | Classes → submenus, resources → documents, SPARQL endpoint → native search |
+
+## License
+
+Apache-2.0
