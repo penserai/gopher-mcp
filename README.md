@@ -1,4 +1,4 @@
-# gopher-mcp
+# gopher-cli
 
 Structured content discovery for humans and agents. Browse local files,
 RSS/Atom feeds, RDF knowledge graphs, and Gopher servers through a
@@ -42,19 +42,19 @@ All sources are projected into a uniform menu/document hierarchy. Paths use the 
 ## Quick Start
 
 ```bash
-cargo build -p gopher-mcp-tui --release
+cargo build -p gopher-cli --release
 
 # Browse all namespaces
-./target/release/gopher-mcp-tui browse
+./target/release/gopher-cli browse
 
 # Browse a namespace
-./target/release/gopher-mcp-tui browse local/
+./target/release/gopher-cli browse local/
 
 # Read a document
-./target/release/gopher-mcp-tui fetch local/welcome
+./target/release/gopher-cli fetch local/welcome
 
 # Launch the interactive TUI
-./target/release/gopher-mcp-tui
+./target/release/gopher-cli
 ```
 
 ## CLI
@@ -64,13 +64,13 @@ The CLI is designed to be the primary interface for both humans and agents. It e
 ### Commands
 
 ```
-gopher-mcp-tui browse [path]                 List items at a path
-gopher-mcp-tui fetch <path>                  Retrieve document content
-gopher-mcp-tui search <path> <query>         Search within a namespace
-gopher-mcp-tui publish <path> [--content ..]  Write a document
-gopher-mcp-tui delete <path>                 Delete a document
-gopher-mcp-tui dump <source> <dest>          Bulk-copy between namespaces
-gopher-mcp-tui [tui]                         Launch interactive browser
+gopher-cli browse [path]                 List items at a path
+gopher-cli fetch <path>                  Retrieve document content
+gopher-cli search <path> <query>         Search within a namespace
+gopher-cli publish <path> [--content ..]  Write a document
+gopher-cli delete <path>                 Delete a document
+gopher-cli dump <source> <dest>          Bulk-copy between namespaces
+gopher-cli [tui]                         Launch interactive browser
 ```
 
 ### Output Format
@@ -79,15 +79,15 @@ gopher-mcp-tui [tui]                         Launch interactive browser
 
 ```bash
 # Human — sees formatted text
-gopher-mcp-tui browse local/
-# [T] Welcome to gopher-mcp                    local/welcome
+gopher-cli browse local/
+# [T] Welcome to gopher-cli                    local/welcome
 #       -----------------------
 # [+] Submenu Example                          local/sub
 
 # Agent — stdout piped, gets JSON automatically
-result=$(gopher-mcp-tui browse local/)
+result=$(gopher-cli browse local/)
 echo "$result"
-# [{"type":"0","type_name":"TextFile","display":"Welcome to gopher-mcp","path":"local/welcome","mime":"text/plain"}, ...]
+# [{"type":"0","type_name":"TextFile","display":"Welcome to gopher-cli","path":"local/welcome","mime":"text/plain"}, ...]
 ```
 
 ### Browse
@@ -96,16 +96,16 @@ List items at a path. With no path, lists all available namespaces.
 
 ```bash
 # List all namespaces
-gopher-mcp-tui browse
+gopher-cli browse
 
 # List items in a namespace
-gopher-mcp-tui browse local/
+gopher-cli browse local/
 
 # Browse a subdirectory
-gopher-mcp-tui browse local/sub
+gopher-cli browse local/sub
 
 # Browse a live Gopher server
-gopher-mcp-tui browse gopher.floodgap.com/
+gopher-cli browse gopher.floodgap.com/
 ```
 
 ### Fetch
@@ -114,16 +114,16 @@ Retrieve a document's text content.
 
 ```bash
 # Read a local document
-gopher-mcp-tui fetch local/welcome
+gopher-cli fetch local/welcome
 
 # Read an RSS entry
-gopher-mcp-tui fetch feed.hackernews/entry/0
+gopher-cli fetch feed.hackernews/entry/0
 
 # Read from a Gopher server
-gopher-mcp-tui fetch gopher.floodgap.com/gopher/tech/
+gopher-cli fetch gopher.floodgap.com/gopher/tech/
 
 # Save to a file
-gopher-mcp-tui fetch feed.hackernews/entry/0 > article.txt
+gopher-cli fetch feed.hackernews/entry/0 > article.txt
 ```
 
 ### Search
@@ -132,13 +132,13 @@ Search within a namespace or path. Filters menu entries by query string; adapter
 
 ```bash
 # Search across a namespace
-gopher-mcp-tui search local/ "welcome"
+gopher-cli search local/ "welcome"
 
 # Search an RSS feed
-gopher-mcp-tui search feed.hackernews/ "rust"
+gopher-cli search feed.hackernews/ "rust"
 
 # Search a Gopher server's search endpoint
-gopher-mcp-tui search gopherpedia.com/ "gopher protocol"
+gopher-cli search gopherpedia.com/ "gopher protocol"
 ```
 
 ### Publish
@@ -147,17 +147,17 @@ Write or update a document. Reads content from `--content` or stdin. Only works 
 
 ```bash
 # Publish with inline content
-gopher-mcp-tui publish vault/notes/idea.md --content "# My Idea
+gopher-cli publish vault/notes/idea.md --content "# My Idea
 This could work."
 
 # Publish from stdin
-echo "Quick note" | gopher-mcp-tui publish vault/scratch.md
+echo "Quick note" | gopher-cli publish vault/scratch.md
 
 # Pipe a file
-cat report.md | gopher-mcp-tui publish vault/reports/q1.md
+cat report.md | gopher-cli publish vault/reports/q1.md
 
 # Pipe from another command
-gopher-mcp-tui fetch feed.hackernews/entry/0 | gopher-mcp-tui publish vault/saved/hn-top.md
+gopher-cli fetch feed.hackernews/entry/0 | gopher-cli publish vault/saved/hn-top.md
 ```
 
 ### Delete
@@ -165,7 +165,7 @@ gopher-mcp-tui fetch feed.hackernews/entry/0 | gopher-mcp-tui publish vault/save
 Delete a document or directory from a writable namespace.
 
 ```bash
-gopher-mcp-tui delete vault/notes/idea.md
+gopher-cli delete vault/notes/idea.md
 ```
 
 ### Dump
@@ -174,20 +174,20 @@ Recursively copy documents from a source into a writable namespace. Walks menus 
 
 ```bash
 # Mirror an RSS feed into the vault
-gopher-mcp-tui dump feed.hackernews/ vault/mirrors/hn
+gopher-cli dump feed.hackernews/ vault/mirrors/hn
 
 # Mirror with limited depth
-gopher-mcp-tui dump rdf.demo/ vault/mirrors/rdf --max-depth 2
+gopher-cli dump rdf.demo/ vault/mirrors/rdf --max-depth 2
 
 # Mirror a Gopher server subtree
-gopher-mcp-tui dump gopher.floodgap.com/gopher/tech vault/mirrors/floodgap-tech
+gopher-cli dump gopher.floodgap.com/gopher/tech vault/mirrors/floodgap-tech
 ```
 
 ### Global Options
 
 | Option | Env Var | Description |
 |--------|---------|-------------|
-| `--url <URL>` | `GOPHER_MCP_URL` | Connect to a remote gopher-mcp server instead of embedded engine |
+| `--url <URL>` | `GOPHER_CLI_URL` | Connect to a remote gopher-cli server instead of embedded engine |
 | `--no-seed` | | Skip seeding example content into the `local` namespace |
 | `--json` | | Force JSON output (auto-enabled when stdout is piped) |
 
@@ -196,18 +196,18 @@ gopher-mcp-tui dump gopher.floodgap.com/gopher/tech vault/mirrors/floodgap-tech
 The CLI defaults to the embedded engine. To connect to a remote server instead:
 
 1. `--url` flag (highest priority)
-2. `GOPHER_MCP_URL` environment variable
-3. `url` field in `~/.gopher-mcp.toml`
+2. `GOPHER_CLI_URL` environment variable
+3. `url` field in `~/.gopher-cli.toml`
 4. Embedded engine (default — no server needed)
 
 ```bash
 # Use a remote server for one command
-gopher-mcp-tui --url http://localhost:8443 browse
+gopher-cli --url http://localhost:8443 browse
 
 # Set for the whole session
-export GOPHER_MCP_URL=http://localhost:8443
-gopher-mcp-tui browse
-gopher-mcp-tui fetch local/welcome
+export GOPHER_CLI_URL=http://localhost:8443
+gopher-cli browse
+gopher-cli fetch local/welcome
 ```
 
 ### Exit Codes
@@ -220,7 +220,7 @@ gopher-mcp-tui fetch local/welcome
 Errors are structured JSON when output is piped:
 
 ```bash
-gopher-mcp-tui fetch nonexistent/path 2>&1 >/dev/null
+gopher-cli fetch nonexistent/path 2>&1 >/dev/null
 # {"error":"Fetch failed: Selector not found: ..."}
 ```
 
@@ -232,47 +232,47 @@ The CLI is built so agents can use Bash tool calls instead of MCP. Auto-JSON out
 
 ```bash
 # What namespaces are available?
-gopher-mcp-tui browse
+gopher-cli browse
 
 # What's in a namespace?
-gopher-mcp-tui browse vault/
+gopher-cli browse vault/
 
 # Drill into a directory
-gopher-mcp-tui browse vault/research/
+gopher-cli browse vault/research/
 ```
 
 ### Read
 
 ```bash
 # Get a document
-gopher-mcp-tui fetch vault/research/topic.md
+gopher-cli fetch vault/research/topic.md
 
 # Search then read the first result
-gopher-mcp-tui search vault/ "machine learning"
+gopher-cli search vault/ "machine learning"
 # → pick a path from the results
-gopher-mcp-tui fetch vault/research/ml-overview.md
+gopher-cli fetch vault/research/ml-overview.md
 ```
 
 ### Write
 
 ```bash
 # Save a note
-gopher-mcp-tui publish vault/notes/idea.md --content "# Idea
+gopher-cli publish vault/notes/idea.md --content "# Idea
 Something interesting."
 
 # Pipe content from another source
-gopher-mcp-tui fetch feed.hackernews/entry/3 \
-  | gopher-mcp-tui publish vault/saved/article.md
+gopher-cli fetch feed.hackernews/entry/3 \
+  | gopher-cli publish vault/saved/article.md
 ```
 
 ### Bulk Operations
 
 ```bash
 # Copy all articles from a feed into the vault
-gopher-mcp-tui dump feed.hackernews/ vault/mirrors/hn
+gopher-cli dump feed.hackernews/ vault/mirrors/hn
 
 # Verify what was copied
-gopher-mcp-tui browse vault/mirrors/hn/
+gopher-cli browse vault/mirrors/hn/
 ```
 
 ### Agent Workflow Example
@@ -281,20 +281,20 @@ An agent researching a topic might:
 
 ```bash
 # 1. Search feeds for relevant content
-gopher-mcp-tui search feed.hackernews/ "rust async"
+gopher-cli search feed.hackernews/ "rust async"
 
 # 2. Read the interesting entries
-gopher-mcp-tui fetch feed.hackernews/entry/5
+gopher-cli fetch feed.hackernews/entry/5
 
 # 3. Search existing research notes
-gopher-mcp-tui search vault/ "rust"
+gopher-cli search vault/ "rust"
 
 # 4. Save new findings
-gopher-mcp-tui publish vault/research/rust-async.md --content "# Rust Async Patterns
+gopher-cli publish vault/research/rust-async.md --content "# Rust Async Patterns
 ..."
 
 # 5. Build a mirror for offline access
-gopher-mcp-tui dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
+gopher-cli dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
 ```
 
 ### JSON Output Reference
@@ -313,7 +313,7 @@ gopher-mcp-tui dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
   {
     "type": "0",
     "type_name": "TextFile",
-    "display": "Welcome to gopher-mcp",
+    "display": "Welcome to gopher-cli",
     "path": "local/welcome",
     "mime": "text/plain"
   }
@@ -325,7 +325,7 @@ gopher-mcp-tui dump feed.hackernews/ vault/mirrors/hn-$(date +%Y-%m-%d)
 ```json
 {
   "path": "local/welcome",
-  "content": "This is a local document served by gopher-mcp.\nContent here is served directly from the local store."
+  "content": "This is a local document served by gopher-cli.\nContent here is served directly from the local store."
 }
 ```
 
@@ -368,9 +368,9 @@ Item types in browse/search results:
 The interactive terminal browser. Launches when no subcommand is given.
 
 ```bash
-gopher-mcp-tui
-gopher-mcp-tui tui                    # explicit
-gopher-mcp-tui tui local/             # start at a specific path
+gopher-cli
+gopher-cli tui                    # explicit
+gopher-cli tui local/             # start at a specific path
 ```
 
 ### Keybindings
@@ -391,10 +391,10 @@ gopher-mcp-tui tui local/             # start at a specific path
 
 ## Config File
 
-Place at `~/.gopher-mcp.toml`. Used by both CLI commands and the TUI.
+Place at `~/.gopher-cli.toml`. Used by both CLI commands and the TUI.
 
 ```toml
-# Remote mode — uncomment to connect to a running gopher-mcp-server.
+# Remote mode — uncomment to connect to a running gopher-cli-server.
 # Comment out (or remove) to use the embedded engine.
 # url = "http://127.0.0.1:8443"
 
@@ -418,7 +418,7 @@ url = "https://hnrss.org/frontpage"
 [[adapter]]
 type = "fs"
 namespace = "vault"
-root = "/path/to/.gopher-mcp-vault"
+root = "/path/to/.gopher-cli-vault"
 writable = true
 
 # File system directory (read-only)
@@ -448,13 +448,13 @@ format = "turtle"
 
 Cargo workspace with three crates:
 
-- **`gopher-mcp-core`** — Framework-agnostic library: content router, local store, Gopher client, MCP handler, and adapter trait.
-- **`gopher-mcp-server`** — axum HTTP server with mTLS. Use when you need a persistent server process.
-- **`gopher-mcp-tui`** — CLI + TUI binary. Embeds the core engine. Self-contained.
+- **`gopher-cli-core`** — Framework-agnostic library: content router, local store, Gopher client, MCP handler, and adapter trait.
+- **`gopher-cli-server`** — axum HTTP server with mTLS. Use when you need a persistent server process.
+- **`gopher-cli`** — CLI + TUI binary. Embeds the core engine. Self-contained.
 
 ```
-gopher-mcp/
-├── gopher-mcp-core/        # library crate
+gopher-cli/
+├── gopher-cli-core/        # library crate
 │   └── src/
 │       ├── lib.rs           # public re-exports
 │       ├── mcp.rs           # McpHandler (JSON-RPC over HTTP)
@@ -462,11 +462,11 @@ gopher-mcp/
 │       ├── gopher.rs        # GopherClient, ItemType, MenuItem
 │       ├── store.rs         # LocalStore, ContentNode
 │       └── adapters/        # SourceAdapter trait + fs, rss, rdf
-├── gopher-mcp-server/      # server binary
+├── gopher-cli-server/      # server binary
 │   └── src/
 │       ├── main.rs          # CLI, axum wiring, mTLS
 │       └── tls.rs           # certificate handling
-└── gopher-mcp-tui/         # CLI + TUI binary
+└── gopher-cli/         # CLI + TUI binary
     └── src/
         ├── main.rs          # subcommands, embedded/remote startup
         ├── cli.rs           # CLI command handlers, auto-JSON
@@ -485,19 +485,19 @@ For use cases that need a persistent HTTP endpoint (e.g., MCP integration with A
 ./scripts/gen-certs.sh
 
 # Run with mTLS
-cargo run -p gopher-mcp-server
+cargo run -p gopher-cli-server
 
 # Run without TLS (development)
-cargo run -p gopher-mcp-server -- --no-tls
+cargo run -p gopher-cli-server -- --no-tls
 
 # Run with adapters
-cargo run -p gopher-mcp-server -- --no-tls --config examples/rss-demo.toml
+cargo run -p gopher-cli-server -- --no-tls --config examples/rss-demo.toml
 ```
 
 Point the CLI at the server:
 
 ```bash
-gopher-mcp-tui --url http://127.0.0.1:8443 browse local/
+gopher-cli --url http://127.0.0.1:8443 browse local/
 ```
 
 ## Cross-Compilation

@@ -3,7 +3,7 @@
 # This example loads DBpedia's Rust resource (hundreds of triples) and
 # builds a class/resource hierarchy from the remote data.
 #
-# Usage: cargo run -p gopher-mcp-server -- --no-tls --config examples/remote-rdf-demo.toml
+# Usage: cargo run -p gopher-cli-server -- --no-tls --config examples/remote-rdf-demo.toml
 
 [[adapter]]
 type = "rdf"

@@ -4,7 +4,7 @@ set -e
 mkdir -p certs
 
 # 1. Create CA (v3 with basicConstraints for rustls/webpki compatibility)
-openssl req -x509 -sha256 -newkey rsa:4096 -nodes -keyout certs/ca.key -out certs/ca.crt -days 3650 -subj "/CN=gopher-mcp-ca" \
+openssl req -x509 -sha256 -newkey rsa:4096 -nodes -keyout certs/ca.key -out certs/ca.crt -days 3650 -subj "/CN=gopher-cli-ca" \
   -addext "basicConstraints=critical,CA:TRUE" \
   -addext "keyUsage=critical,keyCertSign,cRLSign"
 

@@ -22,9 +22,9 @@ use tracing::{info, warn};
 use app::{App, Mode, Pane};
 use client::{ContentClient, EmbeddedClient, McpClient};
 use config::TuiConfig;
-use gopher_mcp_core::{LocalStore, Router};
+use gopher_cli_core::{LocalStore, Router};
 
-/// Terminal browser and CLI for gopher-mcp.
+/// Terminal browser and CLI for gopher-cli.
 ///
 /// Without a subcommand, launches the interactive TUI. Use subcommands
 /// (browse, fetch, search, publish, delete, dump) for scripting and
@@ -35,10 +35,10 @@ use gopher_mcp_core::{LocalStore, Router};
 ///
 /// Output is auto-JSON when stdout is piped (for agents). Force with --json.
 #[derive(Parser, Debug)]
-#[command(name = "gopher-mcp-tui", version)]
+#[command(name = "gopher-cli", version)]
 struct Args {
-    /// Connect to a remote gopher-mcp server instead of the embedded engine
-    #[arg(long, global = true, env = "GOPHER_MCP_URL")]
+    /// Connect to a remote gopher-cli server instead of the embedded engine
+    #[arg(long, global = true, env = "GOPHER_CLI_URL")]
     url: Option<String>,
 
     /// Skip seeding example content into the 'local' namespace

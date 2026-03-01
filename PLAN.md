@@ -1,4 +1,4 @@
-# gopher-mcp
+# gopher-cli
 
 MCP server for structured content discovery. Connects AI agents to local files,
 RSS/Atom feeds, RDF knowledge graphs, and Gopher servers through three uniform
@@ -8,7 +8,7 @@ tools: browse, fetch, and search.
 
 AI agents need structured ways to discover and navigate content. Unlike the web, where agents must parse arbitrary HTML and guess at navigation structure, a typed menu hierarchy provides explicit, machine-readable navigation with clear semantics — every item declares what it is and where it leads.
 
-gopher-mcp projects heterogeneous data sources — local files, RSS/Atom feeds, RDF knowledge graphs, and live Gopher servers — into a uniform menu/document model inspired by the Gopher protocol. Complex formats are reduced to navigable text, saving agents tokens and eliminating parsing ambiguity. All content is accessed through three MCP tools: browse, fetch, and search.
+gopher-cli projects heterogeneous data sources — local files, RSS/Atom feeds, RDF knowledge graphs, and live Gopher servers — into a uniform menu/document model inspired by the Gopher protocol. Complex formats are reduced to navigable text, saving agents tokens and eliminating parsing ambiguity. All content is accessed through three MCP tools: browse, fetch, and search.
 
 mTLS provides mutual authentication so the server knows which agent is connecting and agents can verify the server's identity.
 
@@ -33,7 +33,7 @@ mTLS provides mutual authentication so the server knows which agent is connectin
 
 ```
                     ┌──────────────────────────────────────────────────────┐
-                    │                    gopher-mcp                        │
+                    │                    gopher-cli                        │
                     │                                                      │
 Agent ──mTLS──▶    │  MCP Handler ──▶ Router ──▶ Local Store              │
                     │                     │          ▲                     │
@@ -145,7 +145,7 @@ Retrieve a document's text content.
 **Response:**
 ```json
 {
-  "content": "This is a local document served by gopher-mcp.\nContent here is served directly from the local store.\n"
+  "content": "This is a local document served by gopher-cli.\nContent here is served directly from the local store.\n"
 }
 ```
 
@@ -193,9 +193,9 @@ The agent's identity is extracted from the client certificate's Common Name (CN)
 
 | Environment Variable | Default | Description |
 |---|---|---|
-| `GOPHER_MCP_CERT` | `certs/server.crt` | Server certificate chain (PEM) |
-| `GOPHER_MCP_KEY` | `certs/server.key` | Server private key (PEM) |
-| `GOPHER_MCP_CLIENT_CA` | `certs/ca.crt` | CA cert for client verification (PEM) |
+| `GOPHER_CLI_CERT` | `certs/server.crt` | Server certificate chain (PEM) |
+| `GOPHER_CLI_KEY` | `certs/server.key` | Server private key (PEM) |
+| `GOPHER_CLI_CLIENT_CA` | `certs/ca.crt` | CA cert for client verification (PEM) |
 
 ## Content Model
 
@@ -282,23 +282,23 @@ An agent browsing `rdf.mydata/class/Person` sees a menu of all `?s rdf:type :Per
 
 The project is a Cargo workspace with two crates:
 
-- **`gopher-mcp-core`** — Framework-agnostic library (publishable to crates.io). Contains the MCP handler, content router, local store, and adapter trait. No web-framework dependencies.
-- **`gopher-mcp-server`** — Binary crate that wires the core library into an axum HTTP server with mTLS and CLI args.
+- **`gopher-cli-core`** — Framework-agnostic library (publishable to crates.io). Contains the MCP handler, content router, local store, and adapter trait. No web-framework dependencies.
+- **`gopher-cli-server`** — Binary crate that wires the core library into an axum HTTP server with mTLS and CLI args.
 
 ```
-gopher-mcp/
+gopher-cli/
 ├── Cargo.toml                     # Workspace root
 ├── README.md
 ├── PLAN.md
 ├── examples/
-│   └── gopher-mcp.toml           # Sample adapter configuration
+│   └── gopher-cli.toml           # Sample adapter configuration
 ├── scripts/
 │   ├── gen-certs.sh               # Generate dev CA, server, and client certs
 │   ├── test-mcp.py                # mTLS integration tests
 │   ├── test-no-tls.py             # Plain HTTP integration tests
 │   ├── test-proxy.py              # Live Gopher proxy tests
 │   └── test-adapters.py           # Source adapter integration tests
-├── gopher-mcp-core/               # Library crate
+├── gopher-cli-core/               # Library crate
 │   ├── Cargo.toml
 │   └── src/
 │       ├── lib.rs                 # Public re-exports (+ conditional adapter types)
@@ -311,7 +311,7 @@ gopher-mcp/
 │           ├── fs.rs              # File system adapter (feature: adapter-fs)
 │           ├── rss.rs             # RSS/Atom feed adapter (feature: adapter-rss)
 │           └── rdf.rs             # RDF/SPARQL adapter (feature: adapter-rdf)
-└── gopher-mcp-server/             # Binary crate
+└── gopher-cli-server/             # Binary crate
     ├── Cargo.toml
     └── src/
         ├── main.rs                # Entry point, CLI args, adapter wiring
@@ -321,7 +321,7 @@ gopher-mcp/
 
 ### Dependencies
 
-#### gopher-mcp-core (library)
+#### gopher-cli-core (library)
 
 | Crate | Purpose |
 |---|---|
@@ -331,11 +331,11 @@ gopher-mcp/
 | `async-trait` | Async trait support for SourceAdapter |
 | `tracing` | Structured logging |
 
-#### gopher-mcp-server (binary)
+#### gopher-cli-server (binary)
 
 | Crate | Purpose |
 |---|---|
-| `gopher-mcp-core` | Core library (path dependency) |
+| `gopher-cli-core` | Core library (path dependency) |
 | `tokio` (full) | Async runtime |
 | `axum` | HTTP framework for MCP endpoint |
 | `axum-server` | TLS-enabled server (rustls backend) |
@@ -392,7 +392,7 @@ The `--seed` flag (default: on) populates a `local` namespace with example conte
 ### CLI Interface
 
 ```
-cargo run -p gopher-mcp-server -- [OPTIONS]
+cargo run -p gopher-cli-server -- [OPTIONS]
 
 Options:
   --bind, -b <ADDR>    Bind address (default: 127.0.0.1:8443)
@@ -402,7 +402,7 @@ Options:
 
 ### Future Work
 
-- ~~**Cargo workspace extraction** — split into `gopher-mcp-core` library and `gopher-mcp-server` binary so the core can be reused in other Rust projects~~ *(done)*
+- ~~**Cargo workspace extraction** — split into `gopher-cli-core` library and `gopher-cli-server` binary so the core can be reused in other Rust projects~~ *(done)*
 - ~~**Source adapters** — implement the `SourceAdapter` trait and ship RDF/SPARQL, RSS/Atom, and file system adapters as the primary v0.2 feature~~ *(done)*
 - ~~**Adapter configuration** — TOML config file for declaring adapters, their namespaces, and startup sync~~ *(done)*
 - ~~**SPARQL-backed search** — route `gopher_search` calls on RDF namespaces to native SPARQL queries instead of menu filtering~~ *(done)*

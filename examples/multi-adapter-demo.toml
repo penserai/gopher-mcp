@@ -1,7 +1,7 @@
 # Multiple adapters in one config — all sync at startup and coexist
 # under separate namespaces.
 #
-# Usage: cargo run -p gopher-mcp-server -- --no-tls --config examples/multi-adapter-demo.toml
+# Usage: cargo run -p gopher-cli-server -- --no-tls --config examples/multi-adapter-demo.toml
 
 # Live RSS feed
 [[adapter]]

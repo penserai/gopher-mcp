@@ -1,6 +1,6 @@
 # Demo: dump a source namespace into a writable vault
 #
-# Usage: cargo run -p gopher-mcp-server -- --no-tls --config examples/dump-demo.toml
+# Usage: cargo run -p gopher-cli-server -- --no-tls --config examples/dump-demo.toml
 
 # Live RSS feed
 [[adapter]]

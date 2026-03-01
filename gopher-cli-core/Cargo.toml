@@ -1,10 +1,10 @@
 [package]
-name = "gopher-mcp-core"
+name = "gopher-cli-core"
 version = "0.1.0"
 edition = "2021"
-description = "Framework-agnostic MCP server core for the Gopher protocol"
+description = "Framework-agnostic content router for the Gopher protocol"
 license = "Apache-2.0"
-repository = "https://github.com/penserai/gopher-mcp"
+repository = "https://github.com/penserai/gopher-cli"
 
 [features]
 default = []

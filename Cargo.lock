@@ -663,7 +663,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "gopher-mcp-core"
+name = "gopher-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "clap",
+ "crossterm",
+ "gopher-cli-core",
+ "ratatui",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "tokio",
+ "toml",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "gopher-cli-core"
 version = "0.1.0"
 dependencies = [
  "async-trait",
@@ -678,39 +697,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "gopher-mcp-server"
+name = "gopher-cli-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "axum",
  "axum-server",
  "clap",
- "gopher-mcp-core",
+ "gopher-cli-core",
  "rustls 0.21.12",
  "rustls-pemfile",
  "serde",
  "serde_json",
  "tokio",
  "tokio-rustls 0.24.1",
- "toml",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "gopher-mcp-tui"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "clap",
- "crossterm",
- "gopher-mcp-core",
- "ratatui",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
  "toml",
  "tracing",
  "tracing-subscriber",

@@ -93,7 +93,7 @@ fn draw_content(frame: &mut Frame, app: &App, area: Rect) {
             "\n",
             "        >(•.•)>\n",
             "\n",
-            "      gopher-mcp\n",
+            "       gopher-cli\n",
             "\n",
             "  Select an item to view\n",
             "  its content.\n",

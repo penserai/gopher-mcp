@@ -6,7 +6,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
-use gopher_mcp_core::{DumpResult, ItemType, MenuItem, Router};
+use gopher_cli_core::{DumpResult, ItemType, MenuItem, Router};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[allow(dead_code)]

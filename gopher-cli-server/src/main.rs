@@ -11,7 +11,7 @@ use tracing_subscriber::FmtSubscriber;
 mod config;
 mod tls;
 
-use gopher_mcp_core::{McpHandler, McpRequest, LocalStore, Router};
+use gopher_cli_core::{McpHandler, McpRequest, LocalStore, Router};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -84,7 +84,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/mcp", post(handle_mcp))
         .with_state(mcp_handler);
 
-    info!("Starting gopher-mcp server on {}", args.bind);
+    info!("Starting gopher-cli server on {}", args.bind);
 
     if args.no_tls {
         info!("TLS disabled (development mode)");

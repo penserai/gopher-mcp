@@ -10,7 +10,7 @@ ex:alice rdf:type ex:Person ;
     rdfs:label "Alice" ;
     ex:name "Alice Wonderland" ;
     ex:email "alice@example.org" ;
-    ex:worksOn ex:gopher-mcp .
+    ex:worksOn ex:gopher-cli .
 
 ex:bob rdf:type ex:Person ;
     rdfs:label "Bob" ;
@@ -22,10 +22,10 @@ ex:carol rdf:type ex:Person ;
     rdfs:label "Carol" ;
     ex:name "Carol Danvers" ;
     ex:knows ex:alice ;
-    ex:worksOn ex:gopher-mcp .
+    ex:worksOn ex:gopher-cli .
 
-ex:gopher-mcp rdf:type ex:Project ;
-    rdfs:label "gopher-mcp" ;
+ex:gopher-cli rdf:type ex:Project ;
+    rdfs:label "gopher-cli" ;
     ex:description "MCP server for structured content discovery" ;
     ex:language ex:rust ;
     ex:license "Apache-2.0" .

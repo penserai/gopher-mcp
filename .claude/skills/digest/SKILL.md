@@ -1,6 +1,6 @@
 ---
 name: digest
-description: Read an RSS feed from gopher-mcp, summarize the top stories, and save a digest to the vault
+description: Read an RSS feed from gopher-cli, summarize the top stories, and save a digest to the vault
 argument-hint: [feed-namespace]
 ---
 
@@ -15,7 +15,7 @@ If no namespace is given, default to `feed.hackernews`.
 List entries in the feed:
 
 ```bash
-gopher-mcp-tui browse feed.hackernews/
+gopher-cli browse feed.hackernews/
 ```
 
 ### 2. Read every entry
@@ -23,8 +23,8 @@ gopher-mcp-tui browse feed.hackernews/
 Fetch each TextFile item to get the full content. Work through all of them:
 
 ```bash
-gopher-mcp-tui fetch feed.hackernews/entry/0
-gopher-mcp-tui fetch feed.hackernews/entry/1
+gopher-cli fetch feed.hackernews/entry/0
+gopher-cli fetch feed.hackernews/entry/1
 # ... continue for each entry
 ```
 
@@ -57,7 +57,7 @@ Date: [today]
 Save the digest:
 
 ```bash
-gopher-mcp-tui publish vault/digests/[feed-name]-[YYYY-MM-DD].md --content "[digest content]"
+gopher-cli publish vault/digests/[feed-name]-[YYYY-MM-DD].md --content "[digest content]"
 ```
 
 Show the user the final digest.

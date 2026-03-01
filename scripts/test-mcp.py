@@ -69,7 +69,7 @@ print("=== MCP Protocol (mTLS) ===\n")
 print("--- initialize ---")
 r = post_json({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}})
 check("returns protocolVersion", "2024-11-05", r["result"]["protocolVersion"])
-check("returns server name", "gopher-mcp", r["result"]["serverInfo"]["name"])
+check("returns server name", "gopher-cli", r["result"]["serverInfo"]["name"])
 check("no error field in success", lambda r: "error" not in r, r)
 
 print("\n--- notifications/initialized ---")
@@ -93,7 +93,7 @@ r = post_json({
     "params": {"name": "gopher_browse", "arguments": {"path": "local/"}}
 })
 items = json.loads(r["result"]["content"][0]["text"])
-check("returns Welcome item", lambda _: any(i["display"] == "Welcome to gopher-mcp" for i in items), None)
+check("returns Welcome item", lambda _: any(i["display"] == "Welcome to gopher-cli" for i in items), None)
 check("returns Submenu item", lambda _: any(i["display"] == "Submenu Example" for i in items), None)
 info_items = [i for i in items if i["type"] == "i"]
 check("info items have empty path", lambda _: all(i["path"] == "" for i in info_items), None)

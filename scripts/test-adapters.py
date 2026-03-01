@@ -91,13 +91,13 @@ def main():
             f.write(f'[[adapter]]\ntype = "fs"\nnamespace = "docs"\nroot = "{content_path}"\n')
 
         # Start server — use pre-built binary for speed, fall back to cargo run
-        print("Starting gopher-mcp server with FS adapter config...")
+        print("Starting gopher-cli server with FS adapter config...")
         project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        binary = os.path.join(project_root, "target", "debug", "gopher-mcp-server")
+        binary = os.path.join(project_root, "target", "debug", "gopher-cli-server")
         if os.path.exists(binary):
             cmd = [binary]
         else:
-            cmd = ["cargo", "run", "-p", "gopher-mcp-server", "--"]
+            cmd = ["cargo", "run", "-p", "gopher-cli-server", "--"]
         cmd += [
             "--no-tls", "--no-seed",
             "--bind", "127.0.0.1:18443",

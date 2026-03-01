@@ -1,6 +1,6 @@
 ---
 name: recall
-description: Search the gopher-mcp vault and other sources for previously saved notes, research, and digests
+description: Search the gopher-cli vault and other sources for previously saved notes, research, and digests
 argument-hint: [query]
 ---
 
@@ -13,7 +13,7 @@ Find information matching: **$ARGUMENTS**
 Search across all saved notes, research, digests, and mirrors:
 
 ```bash
-gopher-mcp-tui search vault/ "[query]"
+gopher-cli search vault/ "[query]"
 ```
 
 ### 2. Browse relevant directories
@@ -21,10 +21,10 @@ gopher-mcp-tui search vault/ "[query]"
 If the query suggests a category, browse into it directly:
 
 ```bash
-gopher-mcp-tui browse vault/research/
-gopher-mcp-tui browse vault/digests/
-gopher-mcp-tui browse vault/mirrors/
-gopher-mcp-tui browse vault/notes/
+gopher-cli browse vault/research/
+gopher-cli browse vault/digests/
+gopher-cli browse vault/mirrors/
+gopher-cli browse vault/notes/
 ```
 
 ### 3. Expand to other sources
@@ -32,8 +32,8 @@ gopher-mcp-tui browse vault/notes/
 If vault results are thin, search across other namespaces:
 
 ```bash
-gopher-mcp-tui search feed.hackernews/ "[query]"
-gopher-mcp-tui search docs/ "[query]"
+gopher-cli search feed.hackernews/ "[query]"
+gopher-cli search docs/ "[query]"
 ```
 
 ### 4. Read and present
@@ -41,7 +41,7 @@ gopher-mcp-tui search docs/ "[query]"
 Fetch the most relevant documents:
 
 ```bash
-gopher-mcp-tui fetch vault/research/matching-note.md
+gopher-cli fetch vault/research/matching-note.md
 ```
 
 Present results to the user with:

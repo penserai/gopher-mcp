@@ -4,7 +4,7 @@ use std::sync::Arc;
 use serde::Deserialize;
 use tracing::info;
 
-use gopher_mcp_core::{AdapterError, SourceAdapter};
+use gopher_cli_core::{AdapterError, SourceAdapter};
 
 #[derive(Deserialize)]
 pub struct Config {
@@ -58,7 +58,7 @@ pub fn create_adapters(
             #[cfg(feature = "adapter-rss")]
             AdapterConfig::Rss { namespace, url } => {
                 info!(namespace = %namespace, url = %url, "Creating RSS adapter");
-                let adapter = gopher_mcp_core::RssAdapter::new(
+                let adapter = gopher_cli_core::RssAdapter::new(
                     namespace.clone(),
                     url.clone(),
                 );
@@ -68,7 +68,7 @@ pub fn create_adapters(
             #[cfg(feature = "adapter-fs")]
             AdapterConfig::Fs { namespace, root, extensions, writable } => {
                 info!(namespace = %namespace, root = %root, writable = %writable, "Creating FS adapter");
-                let adapter = gopher_mcp_core::FsAdapter::new(
+                let adapter = gopher_cli_core::FsAdapter::new(
                     namespace.clone(),
                     PathBuf::from(root),
                     extensions.clone(),
@@ -81,14 +81,14 @@ pub fn create_adapters(
             AdapterConfig::Rdf { namespace, source, format, sparql_endpoint } => {
                 info!(namespace = %namespace, "Creating RDF adapter");
                 let rdf_format = match format.as_str() {
-                    "turtle" | "ttl" => gopher_mcp_core::adapters::rdf::RdfFormat::Turtle,
-                    "rdfxml" | "rdf/xml" | "xml" => gopher_mcp_core::adapters::rdf::RdfFormat::RdfXml,
-                    "ntriples" | "nt" => gopher_mcp_core::adapters::rdf::RdfFormat::NTriples,
+                    "turtle" | "ttl" => gopher_cli_core::adapters::rdf::RdfFormat::Turtle,
+                    "rdfxml" | "rdf/xml" | "xml" => gopher_cli_core::adapters::rdf::RdfFormat::RdfXml,
+                    "ntriples" | "nt" => gopher_cli_core::adapters::rdf::RdfFormat::NTriples,
                     _ => return Err(AdapterError::Config(
                         format!("Unknown RDF format: {}. Use turtle, rdfxml, or ntriples", format),
                     )),
                 };
-                let adapter = gopher_mcp_core::adapters::rdf::RdfAdapter::new(
+                let adapter = gopher_cli_core::adapters::rdf::RdfAdapter::new(
                     namespace.clone(),
                     source.clone(),
                     rdf_format,

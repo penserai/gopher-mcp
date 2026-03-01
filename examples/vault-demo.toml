@@ -5,7 +5,7 @@
 # regenerated from the directory structure after every write/delete.
 #
 # Usage:
-#   cargo run -p gopher-mcp-server -- --no-tls --config examples/vault-demo.toml
+#   cargo run -p gopher-cli-server -- --no-tls --config examples/vault-demo.toml
 #
 # Then ask your agent to:
 #   gopher_publish("vault/notes/idea.md", "# My idea\n...")  — write a note

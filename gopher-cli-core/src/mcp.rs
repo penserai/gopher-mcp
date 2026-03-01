@@ -68,7 +68,7 @@ impl McpHandler {
                     "tools": {}
                 },
                 "serverInfo": {
-                    "name": "gopher-mcp",
+                    "name": "gopher-cli",
                     "version": "0.1.0"
                 }
             })),

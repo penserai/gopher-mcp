@@ -1,4 +1,4 @@
-BINARY = gopher-mcp-tui
+BINARY = gopher-cli
 DIST = dist
 
 .PHONY: build build-darwin-arm64 build-darwin-x86 build-linux-arm64 build-linux-x86 build-all clean

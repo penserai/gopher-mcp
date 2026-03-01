@@ -1,17 +1,17 @@
 [package]
-name = "gopher-mcp-server"
+name = "gopher-cli-server"
 version = "0.1.0"
 edition = "2021"
 
 [features]
 default = ["adapter-all"]
-adapter-rss = ["gopher-mcp-core/adapter-rss"]
-adapter-fs = ["gopher-mcp-core/adapter-fs"]
-adapter-rdf = ["gopher-mcp-core/adapter-rdf"]
+adapter-rss = ["gopher-cli-core/adapter-rss"]
+adapter-fs = ["gopher-cli-core/adapter-fs"]
+adapter-rdf = ["gopher-cli-core/adapter-rdf"]
 adapter-all = ["adapter-rss", "adapter-fs", "adapter-rdf"]
 
 [dependencies]
-gopher-mcp-core = { path = "../gopher-mcp-core" }
+gopher-cli-core = { path = "../gopher-cli-core" }
 tokio = { version = "1.36", features = ["full"] }
 axum = "0.6"
 axum-server = { version = "0.5", features = ["tls-rustls"] }
