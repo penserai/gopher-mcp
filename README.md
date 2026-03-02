@@ -28,6 +28,8 @@ single CLI and TUI — no server required.
   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
 ```
 
+![gopher-cli demo](demo.gif)
+
 ## What It Does
 
 All data sources are projected into a uniform menu/document hierarchy using
